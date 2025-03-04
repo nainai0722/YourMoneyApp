@@ -10,7 +10,7 @@ import SwiftUI
 struct MainTabView: View {
     var body: some View {
         TabView {
-            MoneySummaryView()
+            MoneySummaryComponent(total: .constant(1000))
                 .tabItem {
                     Label("Received", systemImage: "tray.and.arrow.down.fill")
                 }

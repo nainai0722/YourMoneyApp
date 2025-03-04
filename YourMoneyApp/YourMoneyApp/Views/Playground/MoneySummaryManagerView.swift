@@ -1,53 +1,45 @@
 //
-//  MoneySummaryManager.swift
+//  MoneySummaryView.swift
 //  YourMoneyApp
 //
-//  Created by 指原奈々 on 2025/03/04.
+//  Created by 指原奈々 on 2025/03/02.
 //
 
-
-import SwiftData
 import SwiftUI
+import SwiftData
 
 // Viewは検証用に扱う
-class MoneySummaryManager: ObservableObject {
-    @Published var totalMoney: Int = 0
-    @Published var incomeMoney: Int = 0
-    @Published var expenseMoney: Int = 0
-    
-    private var moneys: [Money] = [] {
-        didSet { calculate() }
+struct MoneySummaryManagerView: View {
+    @Query private var moneys: [Money]
+//    let moneys: [Money] // ここで受け取る
+    var body: some View {
+        ZStack {
+            Color(.systemGray6).ignoresSafeArea()
+            
+            VStack(alignment: .trailing, spacing :20){
+                Text("持っているお金 : \(totalMoney)円")
+                Text("もらったお金: \(incomeMoney)円")
+                Text("使ったお金: \(expenseMoney)円")
+                Text("おてつだいでもらったお金: \(familySupportMoney)")
+                Text("おこづかいでもらったお金: \(monthlyPayment)")
+                Text("2月にもらったお金: \(incomeMoneyByMonth(year: 2025, month: 02))")
+                Text("3月にもらったお金: \(incomeMoneyByMonth(year: 2025, month: 03))")
+            }
+            .padding(20)
+            .background(Color.white)
+        }
     }
     
-    init(moneys: [Money]) {
-        self.moneys = moneys
-        calculate()
+    // 計算プロパティ
+    var totalMoney:Int{
+        return incomeMoney - expenseMoney
     }
     
-    func updateMoneys(_ newMoneys: [Money]) {
-        self.moneys = newMoneys
+    // もらったお金の総額
+    var incomeMoney: Int {
+        let incomes = moneys.filter{ $0.moneyType == .income}.reduce(0) { $0+$1.price }
+        return incomes
     }
-    
-    private func calculate() {
-        incomeMoney = moneys.filter { $0.moneyType == .income }.reduce(0) { $0 + $1.price }
-        expenseMoney = moneys.filter { $0.moneyType == .expense }.reduce(0) { $0 + $1.price }
-        totalMoney = incomeMoney - expenseMoney
-    }
-    
-//    // 計算プロパティ
-//    var totalMoney:Int{
-//        return incomeMoney - expenseMoney
-//    }
-//    
-//    // もらったお金の総額
-//    var incomeMoney: Int {
-//        let incomes = moneys.filter{ $0.moneyType == .income}.reduce(0) { $0+$1.price }
-//        return incomes
-//    }
-//    var expenseMoney: Int {
-//        let expense = moneys.filter{ $0.moneyType == .expense}.reduce(0) { $0+$1.price }
-//        return expense
-//    }
     
     // お手伝いの総額
     var familySupportMoney: Int {
@@ -67,6 +59,13 @@ class MoneySummaryManager: ObservableObject {
         let otherIncomeMoneys = moneys.filter{ $0.moneyType == .income && $0.incomeType == .other }.reduce(0) { $0+$1.price }
         return otherIncomeMoneys
     }
+    
+    
+    var expenseMoney: Int {
+        let expense = moneys.filter{ $0.moneyType == .expense}.reduce(0) { $0+$1.price }
+        return expense
+    }
+    
     
     // 指定したincomeTypeの総額
     func getIncomeTypeMoney(by incomeType:IncomeType) -> Int {
@@ -93,3 +92,7 @@ class MoneySummaryManager: ObservableObject {
     }
 }
 
+#Preview {
+    MoneySummaryManagerView()
+        .modelContainer(for: Money.self)
+}

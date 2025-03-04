@@ -8,9 +8,8 @@
 import SwiftUI
 import SwiftData
 
-struct MoneySummaryView: View {
-    @Query private var moneys: [Money]
-    @State var total: Int = 0
+struct MoneySummaryComponent: View {
+    @Binding var total: Int
     var body: some View {
         ZStack {
             Rectangle().fill(Color.green)
@@ -48,6 +47,6 @@ struct MoneySummaryView: View {
 }
 
 #Preview {
-    MoneySummaryView()
-        .modelContainer(for: Money.self)
+    MoneySummaryComponent(total: .constant(1000))
+//        .modelContainer(for: Money.self)
 }
