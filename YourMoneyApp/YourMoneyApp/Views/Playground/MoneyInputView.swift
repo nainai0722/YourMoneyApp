@@ -15,6 +15,8 @@ struct MoneyInputView: View {
     @State var inputPrice: String = ""
     @State var selectedIncomeType: IncomeType?
     @State var selectedExpenseType: ExpenseType?
+    @State var selectedDate: Date = Date()
+    @State var isShowCalendar:Bool = false
     
     var body: some View {
         VStack{
@@ -32,8 +34,6 @@ struct MoneyInputView: View {
                                 Text(incomeType.rawValue)
                                     .foregroundColor(incomeType == selectedIncomeType ? .white :.blue)
                                     .modifier(BorderedTextChangeColor(isSelected: incomeType == selectedIncomeType))
-                                    
-
                             }
                         }
                     }
@@ -47,7 +47,8 @@ struct MoneyInputView: View {
                                 selectedExpenseType = expenseType
                             } ) {
                                 Text(expenseType.rawValue)
-                                    .modifier(BorderedTextModifier())
+                                    .foregroundColor(expenseType == selectedExpenseType ? .white :.blue)
+                                    .modifier(BorderedTextChangeColor(isSelected: expenseType == selectedExpenseType))
                             }
                         }
                     }
@@ -70,8 +71,14 @@ struct MoneyInputView: View {
                     .foregroundColor(.blue) // 線の色
                     .padding(.horizontal)
             }
+            .padding()
             
-            
+            Button(action: {
+                isShowCalendar.toggle()
+            }){
+                Text("\(selectedDate.formattedYearMonthDayString)")
+                Text("日付を変更する")
+            }
                 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
@@ -85,29 +92,45 @@ struct MoneyInputView: View {
                     }
                 }
             }
-            
-
-            
+    
             Button("追加する") {
-                // お小遣いを追加する
-                if let priceValue = Int(inputPrice), let _ = selectedIncomeType {
-                    let newItem = Money(price: priceValue, moneyType: moneyType, incomeType: selectedIncomeType, memo: "メモメモ", timestamp: Date())
-                    modelContext.insert(newItem)
-                    print("お小遣いを追加する")
-                    print("")
-                }
-                // 何に使ったか
-                if let priceValue = Int(inputPrice), let _ = selectedExpenseType {
-                    let newItem = Money(price: priceValue, moneyType: moneyType, expenseType: selectedExpenseType, memo: "メモメモ", timestamp: Date())
-                    modelContext.insert(newItem)
-                }
+                insertMoneyItem()
                 
                 isShowingSheet = false
             }
             .buttonStyle(.borderedProminent)
             .buttonStyle(.bordered)
         }
+        .overlay(){
+            selectDateView(selectedDate: $selectedDate, isShowCalendar: $isShowCalendar)
+        }
     }
+    func insertMoneyItem() {
+        // お小遣いを追加する
+        if let priceValue = Int(inputPrice), let _ = selectedIncomeType {
+            let newItem = Money(price: priceValue, moneyType: moneyType, incomeType: selectedIncomeType, memo: "メモメモ", timestamp: Date())
+            modelContext.insert(newItem)
+        }
+        // 何に使ったか
+        if let priceValue = Int(inputPrice), let _ = selectedExpenseType {
+            let newItem = Money(price: priceValue, moneyType: moneyType, expenseType: selectedExpenseType, memo: "メモメモ", timestamp: Date())
+            modelContext.insert(newItem)
+        }
+    }
+    func addMoneyByDate() {
+        let calendar = Calendar.current
+        if let specificDate = calendar.date(from: DateComponents(year: 2025, month: 2, day: 1)) {
+            addMoneyByDate(by: specificDate)
+        }
+    }
+    private func addMoneyByDate(by date: Date) {
+        withAnimation {
+            
+            let newItem = Money(price: 100, moneyType: .income, incomeType: .familySupport, memo: "メモメモ", timestamp: date)
+            modelContext.insert(newItem)
+        }
+    }
+    
 }
 
 #Preview {
@@ -147,3 +170,35 @@ struct BorderedTextChangeColor: ViewModifier {
     }
 }
 
+
+struct selectDateView: View {
+    @Binding var selectedDate: Date
+    @Binding var isShowCalendar: Bool
+    var body: some View {
+        ZStack {
+            VStack {
+                Text("変更する日付を選ぶ")
+                DatePicker(
+                    "\(selectedDate.formattedYearMonthDayString)",
+                    selection: $selectedDate,
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(.graphical)
+                Button(action:{
+                    isShowCalendar = false
+                }){
+                    Text("閉じる")
+                }
+            }
+            .frame(width: 300, height: 400)
+            .padding()
+            .cornerRadius(0.5)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .opacity(isShowCalendar ? 1 : 0)
+        }
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        .background(Color.gray.opacity(0.4).edgesIgnoringSafeArea(.all))
+        .opacity(isShowCalendar ? 1 : 0)
+    }
+}

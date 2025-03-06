@@ -25,7 +25,7 @@ struct MoneyRecordView: View {
             List {
                 ForEach(moneys) { money in
                     NavigationLink {
-                        Text("Item at \(money.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        Text("\(money.price) : \(money.timestamp.formattedString)")
                     } label: {
                         MoneyInfoCell(money: money)
                     }
@@ -40,26 +40,18 @@ struct MoneyRecordView: View {
                     Button(action: {
                         isShowingIncomeSheet.toggle()
                     }) {
-                        Label("ふやす", systemImage: "pencil.and.ellipsis.rectangle")
+//                        Label("ふやす", systemImage: "pencil.and.ellipsis.rectangle")
+                        Text("＋　ふやす")
                     }
                 }
                 ToolbarItem {
                     Button(action: {
                         isShowingExpenseSheet.toggle()
                     }) {
-                        Label("減らす", systemImage: "pencil.and.ellipsis.rectangle")
+//                        Label("減らす", systemImage: "pencil.and.ellipsis.rectangle")
+                        Text("ー　へらす")
                     }
                 }
-//                ToolbarItem {
-//                    Button(action: addMoney) {
-//                        Label("Add Money", systemImage: "plus")
-//                    }
-//                }
-//                ToolbarItem {
-//                    Button(action: addMoneyByDate) {
-//                        Label("Add Money By Date", systemImage: "plus")
-//                    }
-//                }
             }
             .sheet(isPresented: $isShowingIncomeSheet) {
                 MoneyInputView(isShowingSheet: $isShowingIncomeSheet, moneyType: .income)
@@ -70,6 +62,7 @@ struct MoneyRecordView: View {
         } detail: {
             Text("Select an money")
         }
+        
     }
     
     private func fetchTotalMoney() {

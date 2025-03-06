@@ -21,7 +21,8 @@ struct MoneyInfoCell: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Text("\(money.price)円")
+            
+            Text("\(money.moneyType == .income ? "+" : "-") \(money.price)円")
                 .font(.system(size: 30))
         }
         .padding(.horizontal, 20)

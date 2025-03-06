@@ -6,23 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var moneys: [Money]
     var body: some View {
         TabView {
-            MoneySummaryComponent(total: .constant(1000))
+            MoneyRecordView()
                 .tabItem {
                     Label("Received", systemImage: "tray.and.arrow.down.fill")
-                }
-
-            ContentView()
-                .tabItem {
-                    Label("Sent", systemImage: "tray.and.arrow.up.fill")
-                }
-
-            AccountView()
-                .tabItem {
-                    Label("Account", systemImage: "person.crop.circle.fill")
                 }
         }
     }
@@ -32,7 +25,3 @@ struct MainTabView: View {
     MainTabView()
 }
 
-
-#Preview {
-    MainTabView()
-}
