@@ -12,11 +12,14 @@ struct MoneyRecordView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var moneys: [Money]
     @State var totalMoney: Int = 0
+    @State var isShowingIncomeSheet = false
+    @State var isShowingExpenseSheet = false
     
     var body: some View {
         NavigationSplitView {
             MoneySummaryComponent(total: $totalMoney)
                 .onAppear {
+                    print("画面表示")
                     fetchTotalMoney()
                 }
             List {
@@ -34,15 +37,35 @@ struct MoneyRecordView: View {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addMoney) {
-                        Label("Add Money", systemImage: "plus")
+                    Button(action: {
+                        isShowingIncomeSheet.toggle()
+                    }) {
+                        Label("ふやす", systemImage: "pencil.and.ellipsis.rectangle")
                     }
                 }
                 ToolbarItem {
-                    Button(action: addMoneyByDate) {
-                        Label("Add Money By Date", systemImage: "plus")
+                    Button(action: {
+                        isShowingExpenseSheet.toggle()
+                    }) {
+                        Label("減らす", systemImage: "pencil.and.ellipsis.rectangle")
                     }
                 }
+//                ToolbarItem {
+//                    Button(action: addMoney) {
+//                        Label("Add Money", systemImage: "plus")
+//                    }
+//                }
+//                ToolbarItem {
+//                    Button(action: addMoneyByDate) {
+//                        Label("Add Money By Date", systemImage: "plus")
+//                    }
+//                }
+            }
+            .sheet(isPresented: $isShowingIncomeSheet) {
+                MoneyInputView(isShowingSheet: $isShowingIncomeSheet, moneyType: .income)
+            }
+            .sheet(isPresented: $isShowingExpenseSheet) {
+                MoneyInputView(isShowingSheet: $isShowingExpenseSheet, moneyType: .expense)
             }
         } detail: {
             Text("Select an money")
