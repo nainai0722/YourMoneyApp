@@ -1,5 +1,5 @@
 //
-//  MoneySummaryView.swift
+//  MoneySummaryManagerView.swift
 //  YourMoneyApp
 //
 //  Created by 指原奈々 on 2025/03/02.

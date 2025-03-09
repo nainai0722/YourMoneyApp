@@ -11,19 +11,41 @@ import SwiftData
 struct MoneyRecordView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var moneys: [Money]
-    @State var totalMoney: Int = 0
-    @State var isShowingIncomeSheet = false
-    @State var isShowingExpenseSheet = false
+    @Query private var userInfos: [UserInfo]
     
+    @State private var totalMoney: Int = 0
+    @State private var isShowingIncomeSheet = false
+    @State private var isShowingExpenseSheet = false
+    @State private var isShowingGoalSetting = false
+    @State private var isShowingMoneyDetail = false
+    
+    @State private var goal: Goal = Goal.mockGoal
+
     var body: some View {
         NavigationSplitView {
-            MoneySummaryComponent(total: $totalMoney)
-                .onAppear {
-                    print("画面表示")
-                    fetchTotalMoney()
+            VStack {
+                MoneySummaryComponent(
+                    isShowingGoalSetting: $isShowingGoalSetting,
+                    isShowingMoneyDetail: $isShowingMoneyDetail,
+                    total: $totalMoney,
+                    goal: $goal
+                )
+                .navigationDestination(isPresented: $isShowingGoalSetting) {
+                    GoalSettingView(total: totalMoney, goal: goal)
                 }
+                .navigationDestination(isPresented: $isShowingMoneyDetail) {
+                    MoneyDetailView()
+                }
+                
+                
+            }
+            .onAppear {
+                fetchTotalMoney()
+                loadGoal()
+            }
+            
             List {
-                ForEach(moneys) { money in
+                ForEach(moneys.sorted(by: { $0.timestamp > $1.timestamp })) { money in
                     NavigationLink {
                         Text("\(money.price) : \(money.timestamp.formattedString)")
                     } label: {
@@ -37,18 +59,12 @@ struct MoneyRecordView: View {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: {
-                        isShowingIncomeSheet.toggle()
-                    }) {
-//                        Label("ふやす", systemImage: "pencil.and.ellipsis.rectangle")
+                    Button(action: { isShowingIncomeSheet.toggle() }) {
                         Text("＋　ふやす")
                     }
                 }
                 ToolbarItem {
-                    Button(action: {
-                        isShowingExpenseSheet.toggle()
-                    }) {
-//                        Label("減らす", systemImage: "pencil.and.ellipsis.rectangle")
+                    Button(action: { isShowingExpenseSheet.toggle() }) {
                         Text("ー　へらす")
                     }
                 }
@@ -62,49 +78,54 @@ struct MoneyRecordView: View {
         } detail: {
             Text("Select an money")
         }
-        
+        .onChange(of: isShowingIncomeSheet) { _ in fetchTotalMoney() }
+        .onChange(of: isShowingExpenseSheet) { _ in fetchTotalMoney() }
     }
-    
+
+    /// 🔹 **目標を読み込む処理**
+    private func loadGoal() {
+        if let userInfo = userInfos.first {
+            print("ローカルデータから取得")
+            let goals = Goal.mockGoalsList
+            if let currentGoal = goals.filter{ $0.isAchieved == false}.first {
+                goal = currentGoal
+                return
+            }
+            goal = userInfo.goal
+        } else {
+            print("モックデータを取得")
+            let newGoal = Goal.mockGoal
+            saveUserGoal(goal: newGoal)
+            goal = newGoal
+        }
+    }
+
+    /// 🔹 **データを保存**
+    private func saveUserGoal(goal: Goal) {
+        let userInfo = UserInfo(goal: goal, timestamp: Date())
+        modelContext.insert(userInfo)
+        try? modelContext.save()  // 🔹 **変更を永続化**
+    }
+
+    /// 🔹 **総額の計算**
     private func fetchTotalMoney() {
         let fetchDescriptor = FetchDescriptor<Money>()
         if let allMoneys = try? modelContext.fetch(fetchDescriptor) {
             let expense = allMoneys.filter { $0.moneyType == .expense }.reduce(0) { $0 + $1.price }
             let income = allMoneys.filter { $0.moneyType == .income }.reduce(0) { $0 + $1.price }
             totalMoney = income - expense
-            print("総額の再計算\(totalMoney)")
+            print("総額の再計算: \(totalMoney)")
         }
     }
 
-    private func addMoney() {
-        withAnimation {
-            let newItem = Money(price: 100, moneyType: .income, incomeType: .monthlyPayment, memo: "メモメモ", timestamp: Date())
-            modelContext.insert(newItem)
-            fetchTotalMoney()
-        }
-    }
-    
-    func addMoneyByDate() {
-        let calendar = Calendar.current
-        if let specificDate = calendar.date(from: DateComponents(year: 2025, month: 2, day: 1)) {
-            addMoneyByDate(by: specificDate)
-        }
-    }
-    
-    private func addMoneyByDate(by date: Date) {
-        withAnimation {
-            
-            let newItem = Money(price: 100, moneyType: .income, incomeType: .familySupport, memo: "メモメモ", timestamp: date)
-            modelContext.insert(newItem)
-            fetchTotalMoney()
-        }
-    }
-    
+    /// 🔹 **データの削除**
     private func deleteMoneys(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
                 modelContext.delete(moneys[index])
-                fetchTotalMoney()
             }
+            try? modelContext.save()  // 🔹 **削除後も保存**
+            fetchTotalMoney()
         }
     }
 }
@@ -113,4 +134,3 @@ struct MoneyRecordView: View {
     MoneyRecordView()
         .modelContainer(for: Money.self)
 }
-

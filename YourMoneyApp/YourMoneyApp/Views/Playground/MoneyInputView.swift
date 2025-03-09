@@ -95,7 +95,6 @@ struct MoneyInputView: View {
     
             Button("追加する") {
                 insertMoneyItem()
-                
                 isShowingSheet = false
             }
             .buttonStyle(.borderedProminent)
@@ -105,7 +104,14 @@ struct MoneyInputView: View {
             selectDateView(selectedDate: $selectedDate, isShowCalendar: $isShowCalendar)
         }
     }
+    
     func insertMoneyItem() {
+        if (selectedIncomeType == nil && selectedExpenseType == nil), let priceValue = Int(inputPrice) {
+            print("エラー: 追加するお小遣いまたは支出の種類を指定してください。\(priceValue)円")
+            return
+        } else {
+            print("保存処理へ")
+        }
         // お小遣いを追加する
         if let priceValue = Int(inputPrice), let _ = selectedIncomeType {
             let newItem = Money(price: priceValue, moneyType: moneyType, incomeType: selectedIncomeType, memo: "メモメモ", timestamp: Date())
@@ -170,7 +176,7 @@ struct BorderedTextChangeColor: ViewModifier {
     }
 }
 
-
+// 日付を変更する画面
 struct selectDateView: View {
     @Binding var selectedDate: Date
     @Binding var isShowCalendar: Bool

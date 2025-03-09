@@ -12,7 +12,8 @@ import SwiftData
 struct YourMoneyAppApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Money.self
+            Money.self,
+            UserInfo.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,8 +26,10 @@ struct YourMoneyAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+//            ContentView()
+            MoneyRecordView()
         }
         .modelContainer(sharedModelContainer)
     }
+
 }
