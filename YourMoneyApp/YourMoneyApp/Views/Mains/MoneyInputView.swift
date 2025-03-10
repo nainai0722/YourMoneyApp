@@ -10,9 +10,10 @@ import SwiftUI
 struct MoneyInputView: View {
     @Binding var isShowingSheet: Bool
     @Environment(\.modelContext) private var modelContext
-    var moneyType: MoneyType = .expense
-    let moneyBottonContents : [Int] = [100,200,400,300,500,700,1000]
+    @State var moneyType: MoneyType = .expense
+    
     @State var inputPrice: String = ""
+    @State var inputMemo: String = ""
     @State var selectedIncomeType: IncomeType?
     @State var selectedExpenseType: ExpenseType?
     @State var selectedDate: Date = Date()
@@ -20,10 +21,12 @@ struct MoneyInputView: View {
     
     var body: some View {
         VStack{
-            Text("記録する")
+            InputTitleView(isShowingSheet: $isShowingSheet, moneyType: $moneyType, selectedIncomeType: $selectedIncomeType, selectedExpenseType: $selectedExpenseType)
+            Divider()
+            Text(moneyType == .income ? "もらったお金のしゅるい" : "何につかった？")
             
             if moneyType == .income {
-                Text("おこづかいの種類")
+
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(IncomeType.allCases, id: \.self) { incomeType in
@@ -39,7 +42,6 @@ struct MoneyInputView: View {
                     }
                 }
             } else {
-                Text("何に使った？")
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
                         ForEach(ExpenseType.allCases, id: \.self) { expenseType in
@@ -55,50 +57,30 @@ struct MoneyInputView: View {
                 }
             }
             
+            InputPriceView(inputPrice: $inputPrice)
+            SelectMoneyButtonListView(inputPrice: $inputPrice)
             
-            VStack {
-                HStack(spacing:0) {
-                    TextField("金額を入力", text: $inputPrice)
-                        .keyboardType(.numberPad)
-                        .multilineTextAlignment(.trailing) // テキスト入力も左寄せ
-                        .font(.system(size: 30))
-                        .padding(.trailing, 30)
-                    Text("円")
-                }
-                .padding(.horizontal)
-                Rectangle()
-                    .frame(height: 1) // 線の太さ
-                    .foregroundColor(.blue) // 線の色
-                    .padding(.horizontal)
-            }
-            .padding()
+            InputMemoView(inputMemo: $inputMemo)
             
             Button(action: {
                 isShowCalendar.toggle()
             }){
-                Text("\(selectedDate.formattedYearMonthDayString)")
-                Text("日付を変更する")
-            }
-                
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(moneyBottonContents, id: \.self) { content in
-                        Button(action: {
-                            inputPrice = String(content)
-                        } ) {
-                            Text("\(content)円")
-                                .modifier(BorderedTextModifier())
-                        }
-                    }
+                VStack {
+                    Text("登録する日付は\(selectedDate.formattedYearMonthDayString)")
+                    
                 }
+                .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .blue, fontType: .headline))
             }
-    
-            Button("追加する") {
+
+            Button(action: {
                 insertMoneyItem()
                 isShowingSheet = false
+            }){
+                Text("追加する")
+                    .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .blue, fontType: .title))
             }
-            .buttonStyle(.borderedProminent)
-            .buttonStyle(.bordered)
+            Spacer()
+
         }
         .overlay(){
             selectDateView(selectedDate: $selectedDate, isShowCalendar: $isShowCalendar)
@@ -113,14 +95,19 @@ struct MoneyInputView: View {
             print("保存処理へ")
         }
         // お小遣いを追加する
-        if let priceValue = Int(inputPrice), let _ = selectedIncomeType {
-            let newItem = Money(price: priceValue, moneyType: moneyType, incomeType: selectedIncomeType, memo: "メモメモ", timestamp: Date())
+        if  moneyType == .income, let priceValue = Int(inputPrice), let _ = selectedIncomeType {
+            let newItem = Money(price: priceValue, moneyType: moneyType, incomeType: selectedIncomeType, memo: inputMemo, timestamp: selectedDate)
             modelContext.insert(newItem)
+            print("おこづかいを追加する")
+            return
         }
         // 何に使ったか
-        if let priceValue = Int(inputPrice), let _ = selectedExpenseType {
-            let newItem = Money(price: priceValue, moneyType: moneyType, expenseType: selectedExpenseType, memo: "メモメモ", timestamp: Date())
+        if moneyType == .expense, let priceValue = Int(inputPrice), let _ = selectedExpenseType {
+            let newItem = Money(price: priceValue, moneyType: moneyType, expenseType: selectedExpenseType, memo: inputMemo, timestamp: selectedDate)
             modelContext.insert(newItem)
+            selectedExpenseType = nil
+            print("何に使ったか")
+            return
         }
     }
     func addMoneyByDate() {
@@ -159,6 +146,20 @@ struct BorderedTextModifier: ViewModifier {
             )
     }
 }
+
+//struct CustomButtonLayout:ViewModifier {
+//    func body(content: Content) -> some View {
+//        content
+//            .frame(width: UIScreen.main.bounds.width * 0.8, height: 70)
+//            .buttonStyle(.borderedProminent)
+//            .tint(Color.blue)
+//            .foregroundColor(.white)
+//            .font(.title)
+//            .cornerRadius(15)
+//            .shadow(radius: 5) // 影をつける
+//            .padding()
+//    }
+//}
 
 struct BorderedTextChangeColor: ViewModifier {
     var isSelected: Bool
@@ -206,5 +207,102 @@ struct selectDateView: View {
         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
         .background(Color.gray.opacity(0.4).edgesIgnoringSafeArea(.all))
         .opacity(isShowCalendar ? 1 : 0)
+    }
+}
+
+struct InputPriceView: View {
+    @Binding var inputPrice: String
+    var body: some View {
+        VStack {
+            HStack(spacing:0) {
+                TextField("金額を入力", text: $inputPrice)
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing) // テキスト入力も左寄せ
+                    .font(.system(size: 30))
+                    .padding(.trailing, 30)
+                Text("円")
+            }
+            .padding(.horizontal)
+            Rectangle()
+                .frame(height: 1) // 線の太さ
+                .foregroundColor(.blue) // 線の色
+                .padding(.horizontal)
+        }
+        .padding()
+    }
+}
+
+struct InputMemoView: View {
+    @Binding var inputMemo: String
+    var body: some View {
+        VStack {
+            HStack(spacing:0) {
+                TextField("メモを入力", text: $inputMemo)
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing) // テキスト入力も左寄せ
+                    .font(.system(size: 30))
+                    .padding(.trailing, 45)
+            }
+            .padding(.horizontal)
+            Rectangle()
+                .frame(height: 1) // 線の太さ
+                .foregroundColor(.blue) // 線の色
+                .padding(.horizontal)
+        }
+        .padding()
+    }
+}
+
+struct SelectMoneyButtonListView: View {
+    @Binding var inputPrice: String
+    let moneyBottonContents : [Int] = [100,200,400,300,500,700,1000]
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(moneyBottonContents, id: \.self) { content in
+                    Button(action: {
+                        inputPrice = String(content)
+                    } ) {
+                        Text("\(content)円")
+                            .modifier(BorderedTextModifier())
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct InputTitleView: View {
+    @Binding var isShowingSheet: Bool
+    @Binding var moneyType: MoneyType
+    @Binding var selectedIncomeType: IncomeType?
+    @Binding var selectedExpenseType: ExpenseType?
+    var body: some View {
+        HStack {
+            Button(action:{
+                if moneyType == .income {
+                    selectedIncomeType = nil
+                } else {
+                    selectedExpenseType = nil
+                }
+                moneyType = moneyType == .income ? .expense : .income
+                
+            }){
+                Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90")
+                    .padding()
+            }
+            Spacer()
+            Text("記録する")
+                .font(.title)
+                .padding()
+            Spacer()
+            Button(action:{
+                isShowingSheet = false
+            }){
+                Image(systemName: "xmark")
+                    .padding()
+            }
+            
+        }
     }
 }

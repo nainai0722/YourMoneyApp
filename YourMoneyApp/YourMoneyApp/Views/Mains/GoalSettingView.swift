@@ -42,11 +42,14 @@ struct GoalSettingView: View {
                     
                     VStack {
                         if isAchieved {
+                            BubbleView(text: "次は\(nextGaolSetting().amount)円を目指そう")
+                                .foregroundStyle(.green)
                             Button (action:{
                                 goal = nextGaolSetting()
                             })
                             {
                                 Text("次の目標を設定する")
+                                
                             }
                         }
                     }
@@ -69,6 +72,7 @@ struct GoalSettingView: View {
         print("nextGaolLevel: \(nextGoal.level) amount:\(nextGoal.amount)")
         return nextGoal
     }
+
 }
 
 #Preview {

@@ -36,6 +36,5 @@ final class Goal {
         Goal(id: UUID(), isAchieved:false,level: 4, amount: 3000, goalType: "貯金", timestamp: Date()),
         Goal(id: UUID(), isAchieved:false,level: 5, amount: 5000, goalType: "貯金", timestamp: Date()),
         ]
-        
 }
 

@@ -104,10 +104,14 @@ struct MoneyDetailView: View {
     
     func fetchData() {
         fetchTotalMoney()
-        fetchStudyData()
-        fetchSupportData()
-        fetchOtherData()
+        fetchIncomeTypeData(incomeType: .study, incomeAmount: &studyAmount, incomeCount: &studyCount)
+        fetchIncomeTypeData(incomeType: .monthlyPayment, incomeAmount: &monthlyPaymentAmount, incomeCount: &monthlyPaymentCount)
+        fetchIncomeTypeData(incomeType: .familySupport, incomeAmount: &supportAmount, incomeCount: &supportCount)
+        fetchIncomeTypeData(incomeType: .other, incomeAmount: &otherAmount, incomeCount: &otherCount)
         fetchFoodData()
+        fetchGameData()
+        fetchShoppingData()
+        fetchExpenseOtherData()
     }
     
     /// 🔹 **総額の計算**
@@ -117,7 +121,18 @@ struct MoneyDetailView: View {
             let expense = allMoneys.filter { $0.moneyType == .expense }.reduce(0) { $0 + $1.price }
             let income = allMoneys.filter { $0.moneyType == .income }.reduce(0) { $0 + $1.price }
             totalMoney = income - expense
-            print("総額の再計算: \(totalMoney)")
+//            print("総額の再計算: \(totalMoney)")
+        }
+    }
+    
+    private func fetchIncomeTypeData(incomeType:IncomeType, incomeAmount: inout Int, incomeCount: inout Int) {
+        let fetchDescriptor = FetchDescriptor<Money>()
+        if let allMoneys = try? modelContext.fetch(fetchDescriptor) {
+            incomeAmount = allMoneys.filter { $0.moneyType == .income && $0.incomeType == incomeType }.reduce(0) { $0 + $1.price }
+            incomeCount = allMoneys.filter { $0.moneyType == .income && $0.incomeType == incomeType }.count
+            print("fetchIncomeTypeData 処理")
+            print("\(incomeType.rawValue)の金額: \(incomeAmount)")
+            print("\(incomeType.rawValue)の回数: \(incomeCount)")
         }
     }
     

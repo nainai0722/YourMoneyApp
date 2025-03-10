@@ -78,8 +78,8 @@ struct MoneyRecordView: View {
         } detail: {
             Text("Select an money")
         }
-        .onChange(of: isShowingIncomeSheet) { _ in fetchTotalMoney() }
-        .onChange(of: isShowingExpenseSheet) { _ in fetchTotalMoney() }
+        .onChange(of: isShowingIncomeSheet) { fetchTotalMoney() }
+        .onChange(of: isShowingExpenseSheet) { fetchTotalMoney() }
     }
 
     /// 🔹 **目標を読み込む処理**

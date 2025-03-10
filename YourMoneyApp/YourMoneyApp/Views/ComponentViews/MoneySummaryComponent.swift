@@ -66,11 +66,15 @@ struct MoneySummaryComponent: View {
                         isShowingMoneyDetail = true
                         isShowingGoalSetting = false
                     }){
-                        Image("money_bag_color")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 70, height: 70)
-                            .padding([.bottom,.trailing],20)
+                        
+                        VStack {
+                            Image("money_bag_color")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60, height: 60)
+                            Text("こまかく見る")
+                        }
+                        .padding([.bottom,.trailing],10)
                     }
                 }
             }
