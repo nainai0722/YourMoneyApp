@@ -15,7 +15,11 @@ struct MainTabView: View {
         TabView {
             MoneyRecordView()
                 .tabItem {
-                    Label("Received", systemImage: "tray.and.arrow.down.fill")
+                    Label("おこづかい", systemImage: "nairasign.bank.building")
+                }
+            RoutineView()
+                .tabItem {
+                    Label("おしたく", systemImage: "books.vertical")
                 }
         }
     }

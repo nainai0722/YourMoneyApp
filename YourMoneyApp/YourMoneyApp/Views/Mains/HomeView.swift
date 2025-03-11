@@ -17,7 +17,7 @@ struct HomeView: View {
                     .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .green, fontType: .headline))
             }
             NavigationLink {
-                RoutineStampView()
+                RoutineView()
             } label: {
                 Text("あさの支度")
                     .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .orange, fontType: .headline))

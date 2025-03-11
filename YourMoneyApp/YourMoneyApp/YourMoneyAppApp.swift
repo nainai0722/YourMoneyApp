@@ -28,7 +28,8 @@ struct YourMoneyAppApp: App {
         WindowGroup {
 //            ContentView()
 //            MoneyRecordView()
-            HomeView()
+//            HomeView()
+            MainTabView()
         }
         .modelContainer(sharedModelContainer)
     }

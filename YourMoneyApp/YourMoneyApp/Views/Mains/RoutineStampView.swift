@@ -9,55 +9,30 @@ import SwiftUI
 import SwiftData
 
 struct RoutineStampView: View {
-    @State var routines: [Routine] = Routine.mockRoutines
+    @Binding var routines: [Routine]
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     var body: some View {
-        VStack {
-            ZStack {
-                VStack {
-                    BubbleView(text:"できたらスタンプを押してね！" )
-                    
-                    
-                    ScrollView {
-                        LazyVGrid(columns: columns) {
-                            ForEach($routines, id: \.self) { routine in
-                                StampCellView(routine: routine)
-                            }
+        ZStack {
+            VStack {
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                        ForEach($routines, id: \.self) { routine in
+                            StampCellView(routine: routine)
                         }
                     }
                 }
-                .padding()
-                if allDoneCheck() {
-                    AllDone_StampView()
-                }
-            }
-            if allDoneCheck() {
-                Button(action:{
-                    allReset()
-                }){
-                    Text("もう一回やる")
-                        .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
-                }
+                Spacer()
+
             }
         }
     }
-    func allDoneCheck() -> Bool {
-        routines.allSatisfy(\.done)
-    }
-    
-    func allReset() {
-        for i in 0..<routines.count {
-            routines[i].done = false
-        }
-    }
-    
 }
 
 #Preview {
-    RoutineStampView()
+    RoutineStampView(routines: .constant(Routine.mockRoutines))
 }
 
-struct Done_StampView: View {
+struct DoneTypeBStampView: View {
     var body: some View {
         VStack {
             ZStack {
@@ -75,30 +50,40 @@ struct Done_StampView: View {
     }
 }
 
-struct AllDone_StampView: View {
+struct DoneTypeAStampView: View {
     var body: some View {
         VStack {
             ZStack {
                 Circle()
                     .fill(.red.opacity(0.85))
-                    .frame(width: 300, height: 300) // サイズを指定
-                Text("OK")
-                    .foregroundStyle(.white)
-                    .rotationEffect(.degrees(-40))
-                    .font(.system(size: 250))
-
+                    .frame(width: 90, height: 90) // サイズを指定
+                VStack {
+                    Text("でき")
+                        .foregroundStyle(.white)
+                        .rotationEffect(.degrees(-40))
+                        .font(.system(size: 30))
+                        .offset(x:-20, y:10)
+                    Text("たね")
+                        .foregroundStyle(.white)
+                        .rotationEffect(.degrees(-40))
+                        .font(.system(size: 30))
+                        .offset(x:0, y:-20)
+                }
             }
-            
         }
     }
 }
 
+
 struct StampCellView: View {
     @Binding var routine: Routine
     var size = ( UIScreen.main.bounds.width / 3 ) - 50
+    var stampViews :[AnyView] = [AnyView(DoneTypeAStampView()),AnyView(DoneTypeBStampView())]
+    @State private var selectedStamp: AnyView?
     var body: some View {
         Button(action:{
             routine.done.toggle()
+            selectedStamp = stampViews.randomElement()
         }){
             ZStack {
                 VStack {
@@ -110,11 +95,10 @@ struct StampCellView: View {
                 }
                 .background()
                 .cornerRadius(8)
-//                .frame(width: 100, height: 100)
                 .shadow(radius: 10)
                 .overlay(content: {
                     VStack {
-                        Done_StampView()
+                        selectedStamp
                     }
                     .opacity(routine.done ? 1 : 0)
                 })

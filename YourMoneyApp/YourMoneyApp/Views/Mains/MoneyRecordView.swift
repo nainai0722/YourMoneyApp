@@ -43,6 +43,7 @@ struct MoneyRecordView: View {
                 fetchTotalMoney()
                 loadGoal()
             }
+            .background(Color(.systemGray6))
             
             List {
                 ForEach(moneys.sorted(by: { $0.timestamp > $1.timestamp })) { money in
@@ -78,6 +79,7 @@ struct MoneyRecordView: View {
         } detail: {
             Text("Select an money")
         }
+        .background(Color(.systemGray6)) 
         .onChange(of: isShowingIncomeSheet) { fetchTotalMoney() }
         .onChange(of: isShowingExpenseSheet) { fetchTotalMoney() }
     }
