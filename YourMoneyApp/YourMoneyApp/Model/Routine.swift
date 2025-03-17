@@ -14,30 +14,28 @@ final class Routine {
     var name: String
     var done: Bool
     var imageName: String
-    var type: RoutineType
-    var createdAt: Date
     
-    init(id: UUID? = nil, name: String, done: Bool, imageName: String, type: RoutineType, createdAt: Date) {
+    init(id: UUID? = nil, name: String, done: Bool, imageName: String) {
         self.id = id
         self.name = name
         self.done = done
         self.imageName = imageName
-        self.type = type
-        self.createdAt = createdAt
     }
     
-    static let mockWearRoutine = Routine(id: UUID(), name: "きがえる", done: false, imageName: "wear", type: .morning, createdAt: Date())
-    static let mockEatRoutine = Routine(id: UUID(), name: "たべる", done: false, imageName: "eat", type: .morning, createdAt: Date())
-    static let mockEToiletRoutine = Routine(id: UUID(), name: "トイレ", done: false, imageName: "toilet", type: .morning, createdAt: Date())
-    static let mockBottleRoutine = Routine(id: UUID(), name: "水筒", done: false, imageName: "bottle", type: .morning, createdAt: Date())
-    static let mockGoodsRoutine = Routine(id: UUID(), name: "給食セット", done: false, imageName: "goods", type: .morning, createdAt: Date())
+    static let mockWearRoutine = Routine(id: UUID(), name: "きがえる", done: true, imageName: "wear")
+    static let mockEatRoutine = Routine(id: UUID(), name: "たべる", done: false, imageName: "eat")
+    static let mockEToiletRoutine = Routine(id: UUID(), name: "トイレ", done: false, imageName: "toilet")
+    static let mockBottleRoutine = Routine(id: UUID(), name: "水筒", done: false, imageName: "bottle")
+    static let mockGoodsRoutine = Routine(id: UUID(), name: "給食セット", done: false, imageName: "goods")
+    static let scale = Routine(id: UUID(), name: "けんおん", done: false, imageName: "scale")
     
-    static let mock2 = Routine(id: UUID(), name: "カレンダー", done: false, imageName: "calender", type: .evening, createdAt: Date())
-    static let mock3 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath", type: .evening, createdAt: Date())
-    static let mock4 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath", type: .evening, createdAt: Date())
-    static let mock5 = Routine(id: UUID(), name: "かみをかわかす", done: false, imageName: "dry", type: .evening, createdAt: Date())
+    static let mock2 = Routine(id: UUID(), name: "カレンダー", done: false, imageName: "calender")
+    static let mock3 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath")
+    static let mock4 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath")
+    static let mock5 = Routine(id: UUID(), name: "かみをかわかす", done: false, imageName: "dry")
+    static let mock6 = Routine(id: UUID(), name: "はみがきをする", done: false, imageName: "hamigaki")
     
-    static let mockRoutines: [Routine] = [
+    static let mockMorningRoutines: [Routine] = [
         .mockWearRoutine,
         .mockEatRoutine,
         .mockEToiletRoutine,
@@ -45,13 +43,19 @@ final class Routine {
         .mockGoodsRoutine
     ]
     
-    static let mockRoutines2: [Routine] = [
+    static let mockEveningRoutines: [Routine] = [
         mock2,
         mock3,
-        mock4,
         mock5
     ]
     
+    static let mockSleepTimeRoutines: [Routine] = [
+        mockEToiletRoutine,
+        mock3,
+        mock2,
+        mock5,
+        mock6
+    ]
 }
 
 

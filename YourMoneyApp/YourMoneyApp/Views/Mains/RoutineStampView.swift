@@ -29,16 +29,17 @@ struct RoutineStampView: View {
 }
 
 #Preview {
-    RoutineStampView(routines: .constant(Routine.mockRoutines))
+    RoutineStampView(routines: .constant(Routine.mockMorningRoutines))
 }
 
 struct DoneTypeBStampView: View {
+    var size :CGFloat = 90
     var body: some View {
         VStack {
             ZStack {
                 Circle()
                     .fill(.red.opacity(0.85))
-                    .frame(width: 90, height: 90) // サイズを指定
+                    .frame(width: size, height: size) // サイズを指定
                 Text("OK")
                     .foregroundStyle(.white)
                     .rotationEffect(.degrees(-40))
@@ -51,12 +52,13 @@ struct DoneTypeBStampView: View {
 }
 
 struct DoneTypeAStampView: View {
+    var size :CGFloat = 90
     var body: some View {
         VStack {
             ZStack {
                 Circle()
                     .fill(.red.opacity(0.85))
-                    .frame(width: 90, height: 90) // サイズを指定
+                    .frame(width: size, height: size) // サイズを指定
                 VStack {
                     Text("でき")
                         .foregroundStyle(.white)

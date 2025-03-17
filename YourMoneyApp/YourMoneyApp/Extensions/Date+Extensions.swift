@@ -26,6 +26,18 @@ extension Date {
         formatter.dateFormat = "yyyy.MM dd"
         return formatter.string(from: self)
     }
+    var formattedMonthDayString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd"
+        return formatter.string(from: self)
+    }
+    
+    var weekString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter.string(from: self)
+    }
 }
 
 

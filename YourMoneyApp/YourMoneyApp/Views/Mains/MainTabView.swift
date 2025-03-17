@@ -21,6 +21,15 @@ struct MainTabView: View {
                 .tabItem {
                     Label("おしたく", systemImage: "books.vertical")
                 }
+            RoutineCalendarView()
+                .tabItem {
+                    Label("カレンダー", systemImage: "calendar")
+                }
+            KindergartenCalendarView()
+                .tabItem {
+                    Label("ようちえん", systemImage: "figure.and.child.holdinghands")
+                }
+            
         }
     }
 }

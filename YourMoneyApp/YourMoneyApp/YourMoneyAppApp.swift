@@ -13,7 +13,9 @@ struct YourMoneyAppApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Money.self,
-            UserInfo.self
+            UserInfo.self,
+            TodayData.self,
+            Routine.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -26,9 +28,6 @@ struct YourMoneyAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-//            ContentView()
-//            MoneyRecordView()
-//            HomeView()
             MainTabView()
         }
         .modelContainer(sharedModelContainer)

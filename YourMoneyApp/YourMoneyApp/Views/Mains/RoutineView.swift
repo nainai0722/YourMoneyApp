@@ -6,51 +6,180 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct RoutineView: View {
-    @State var routines :[Routine] = Routine.mockRoutines
+    @Environment(\.modelContext) private var modelContext
+    @Query private var todayDatas: [TodayData]
+    @State var todayData:TodayData = TodayData()
+    @State var routineType:RoutineType = .morning
+    @State var routines :[Routine] = Routine.mockMorningRoutines
     @State var isShowCalendar: Bool = false
     @State var selectedDate: Date = Date()
     var body: some View {
-        
-        ZStack {
-            VStack {
-                Text(Title())
-                    .font(.title)
-                Menu("したくをえらぶ") {
-                    Button(Title(routine: Routine.mockRoutines), action: { routines = Routine.mockRoutines })
-                    Button(Title(routine: Routine.mockRoutines2), action: {
-                        routines = Routine.mockRoutines2
-                    })
-                }
-                .menuStyle(ButtonMenuStyle())
-                
-                BubbleView(text:"できたらスタンプを押してね！" )
-                
-                RoutineStampView(routines: $routines)
-                
-                Spacer()
-                
-                if allDoneCheck() {
-                    Button(action:{
-                        allReset()
-                    }){
-                        Text("もう一回やる")
-                            .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
+        NavigationSplitView {
+            ZStack {
+                VStack {
+                    Text(routineType.rawValue)
+                        .font(.title)
+                    Menu("したくをえらぶ") {
+                        Button(RoutineType.morning.rawValue, action: {
+                            routines = todayData.morningRoutine
+                            routineType = .morning
+                        })
+                        Button(RoutineType.evening.rawValue, action: {
+                            routines = todayData.eveningRoutine
+                            routineType = .evening
+                        })
+                        Button(RoutineType.sleepTime.rawValue, action: {
+                            routines = todayData.sleepTimeRoutine
+                            routineType = .sleepTime
+                        })
                     }
-                    .transition(.opacity)
-                    .animation(.default, value: allDoneCheck())
+                    .menuStyle(ButtonMenuStyle())
+                    
+                    BubbleView(text:"できたらスタンプを押してね！" )
+                    
+                    RoutineStampView(routines: $routines)
+                    
+                    Spacer()
+                    
+                    if allDoneCheck() {
+                        
+                        NavigationLink {
+                            RoutineCalendarView()
+                        } label: {
+                            Text("カレンダーを見る")
+                                .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
+                        }
+                        
+//                        Button(action:{
+//                            allReset()
+//                        }){
+//                            Text("もう一回やる")
+//                                .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
+//                        }
+//                        .transition(.opacity)
+//                        .animation(.default, value: allDoneCheck())
+                    }
+                }
+                if allDoneCheck() {
+                    AllDone_StampView()
+                        .onAppear(){
+                            updateRoutinesDone()
+                        }
                 }
             }
-            if allDoneCheck() {
-                AllDone_StampView()
-            }
+        } detail: {
+            Text("Select an money")
+        }
+        .onAppear(){
+            fetchTodayData()
         }
         
     }
     
+    private func fetchTodayData() {
+        let fetchDescriptor = FetchDescriptor<TodayData>()
+        if let allDays = try? modelContext.fetch(fetchDescriptor) {
+            let today = Calendar.current.startOfDay(for: Date()) // 今日の0:00のタイムスタンプ
+            if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: today) }) {
+                self.todayData = todayData
+                print("今日のデータ: \(todayData.timestamp.formatted())")
+                print("朝の支度: \(todayData.morningRoutineDone)")
+                print("夕方の支度: \(todayData.eveningRoutineDone)")
+                print("寝る前の支度: \(todayData.sleepTimeRoutineDone)")
+            } else {
+                print("今日のデータがないので新規作成")
+                self.todayData = TodayData()
+                try? modelContext.insert(self.todayData) // SwiftDataに保存
+            }
+        }
+    }
+    
+    private func deleteMarch12Data() {
+        let fetchDescriptor = FetchDescriptor<TodayData>()
+        
+        do {
+            let allDays = try modelContext.fetch(fetchDescriptor)
+            
+            // 3/12 のデータをフィルタ
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy/MM/dd"
+            
+            let targetDateString = "2025/03/12" // 削除対象の日付
+            guard let targetDate = formatter.date(from: targetDateString) else { return }
+            
+            let march12Data = allDays.filter { Calendar.current.isDate($0.timestamp, inSameDayAs: targetDate) }
+            
+            // 削除処理
+            for data in march12Data {
+                modelContext.delete(data)
+            }
+            
+            try modelContext.save() // 削除を保存
+            
+            print("✅ 3/12 のデータを削除しました")
+        } catch {
+            print("❌ 削除に失敗: \(error.localizedDescription)")
+        }
+    }
+
+    func updateRoutinesDone() {
+        print("ルーティンの更新")
+        
+        let fetchDescriptor = FetchDescriptor<TodayData>()
+        do {
+            let allDays = try modelContext.fetch(fetchDescriptor)
+            let today = Calendar.current.startOfDay(for: Date()) // 今日の0:00のタイムスタンプ
+            
+            if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: today) }) {
+                print("あさのルーティンの完了状況:\(todayData.morningRoutineDone)")
+                for routine in todayData.morningRoutine {
+                    print("\(routine.name): \(routine.done)")
+                }
+                
+                // すでに完了済みなら何もしない
+                if routineType == .morning && todayData.morningRoutineDone { return }
+                
+                if routineType == .evening && todayData.eveningRoutineDone { return }
+                
+                if routineType == .sleepTime && todayData.sleepTimeRoutineDone { return }
+                
+                // すべてのdoneがtrueなら morningRoutineDone を更新
+                if routines.allSatisfy(\.done) {
+                    
+                    switch routineType {
+                    case .morning:
+                        todayData.morningRoutineDone = true
+                        for routine in todayData.morningRoutine {
+                            routine.done = true
+                        }
+
+                    case .evening:
+                        todayData.eveningRoutineDone = true
+                        
+                        for routine in todayData.eveningRoutine {
+                            routine.done = true
+                        }
+                    case .sleepTime:
+                        todayData.sleepTimeRoutineDone = true
+                        for routine in todayData.sleepTimeRoutine {
+                            routine.done = true
+                        }
+                    }
+                    
+                    try modelContext.save()
+                    print("✅ \(routineType) を true に更新")
+                }
+            }
+        } catch {
+            print("❌ データの取得または更新に失敗: \(error.localizedDescription)")
+        }
+    }
+    
     func allDoneCheck() -> Bool {
-        routines.allSatisfy(\.done)
+        return routines.allSatisfy(\.done)
     }
     
     func allReset() {
@@ -58,25 +187,11 @@ struct RoutineView: View {
             routines[i].done = false
         }
     }
-    
-    
-    func Title() -> String {
-        if let title = routines.first?.type.rawValue {
-            return title
-        }
-        return "ルーティン"
-    }
-    
-    func Title(routine:[Routine]) -> String {
-        if let title = routine.first?.type.rawValue {
-            return title
-        }
-        return "ルーティン"
-    }
 }
 
 #Preview {
     RoutineView()
+        .modelContainer(for: TodayData.self)
 }
 
 struct AllDone_StampView: View {
