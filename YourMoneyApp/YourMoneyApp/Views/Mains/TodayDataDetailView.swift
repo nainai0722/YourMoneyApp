@@ -6,66 +6,117 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TodayDataDetailView: View {
-    var selectedTodayData: TodayData = TodayData()
+    @Environment(\.modelContext) private var modelContext
+    @Binding var selectedTodayData: TodayData
+    @State var isPresented: Bool = false
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    
     var body: some View {
         VStack {
             Text("今日の詳細")
             Text(selectedTodayData.timestamp.formattedString)
-            selectedTodayData.eveningRoutineDone ? Text("Evening routine is done") : Text("Evening routine is not done")
+//            selectedTodayData.eveningRoutineDone ? Text("Evening routine is done") : Text("Evening routine is not done")
             
-            ScrollView {
-                LazyVGrid(columns: columns) {
+            ScrollView(.horizontal,showsIndicators: false) {
+                HStack(spacing:0) {
                     ForEach(selectedTodayData.morningRoutine, id: \.self) { routine in
                         StampMiniCellView(routine: routine)
                     }
                 }
             }
             
-            ScrollView {
-                LazyVGrid(columns: columns) {
+            ScrollView(.horizontal,showsIndicators: false) {
+                HStack(spacing:0) {
                     ForEach(selectedTodayData.eveningRoutine, id: \.self) { routine in
                         StampMiniCellView(routine: routine)
                     }
                 }
             }
             
-            
+            BubbleView(text: "今日は\(selectedTodayData.bookCount)冊読んだ")
             HStack {
                 ForEach(1...5, id: \.self) { count in
                     if count <= selectedTodayData.bookCount {
-                        Image(systemName: "book.fill")
+                        Button(action:{
+                            selectedTodayData.bookCount = selectedTodayData.bookCount - 1
+                        }){
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 30))
+                        }
+                            
                     } else {
-                        Image(systemName: "book")
+                        Button(action:{
+                            selectedTodayData.bookCount = selectedTodayData.bookCount + 1
+                        }){
+                            Image(systemName: "book")
+                                .font(.system(size: 30))
+                        }
+                            
                     }
                 }
             }
-            switch selectedTodayData.moodType {
-            case .happy:
-                Image(systemName: "face.smiling")
-            case .sad:
-                Text("Sad")
-            case .neutral:
-                Text("Neutral")
-            case .none:
-                Image(systemName: "face.dashed")
+            .padding()
+            
+            ZStack {
+                BubbleContentView(){
+                    HStack {
+                        Button(action:{
+                            isPresented = false
+                            selectedTodayData.moodType = .happy
+//                            saveData()
+                        }){
+                            Text("うれしい")
+                        }
+                        Button(action:{
+                            isPresented = false
+                            selectedTodayData.moodType = .sad
+//                            saveData()
+                        }){
+                            Text("つかれた")
+                        }
+                        Button(action:{
+                            isPresented = false
+                            selectedTodayData.moodType = .neutral
+//                            saveData()
+                        }){
+                            Text("ふだんどおり")
+                        }
+                    }
+                }
+                .offset(y: -50)
+                .opacity(isPresented ? 1 : 0)
+                .animation(.easeInOut(duration: 0.5), value: isPresented)
+
+                
+                Button(action:{
+                    isPresented.toggle()
+                }){
+                    MoodTypeView(selectedTodayData:$selectedTodayData)
+                    
+                }
             }
+            Spacer()
             
         }
         .padding() // 余白をつける
-        .background(Color.white) // 背景を白に
-        .cornerRadius(12) // 角丸にする
-        .shadow(radius: 5) // 影をつける
-        .padding(.horizontal) // 画面端にくっつかないようにする
     }
+    
+    private func saveData() {
+           do {
+               try modelContext.save()
+           } catch {
+               print("データの保存に失敗: \(error)")
+           }
+       }
+    
 }
 
 struct StampMiniCellView: View {
     var routine: Routine
     var size: CGFloat = 30
-    var stampViews :[AnyView] = [AnyView(DoneTypeAStampView(size: 20)),AnyView(DoneTypeBStampView(size: 20))]
     @State private var selectedStamp: AnyView?
     var body: some View {
         ZStack {
@@ -81,21 +132,40 @@ struct StampMiniCellView: View {
             .shadow(radius: 10)
             .overlay(content: {
                 VStack {
-                    selectedStamp
+                    DoneTypeBStampView(size: 45, fontSize: 20)
                 }
                 .opacity(routine.done ? 1 : 0)
             })
-        }
-        .onAppear(){
-            print("\(routine.done)")
-            if routine.done {
-                selectedStamp = stampViews.randomElement() // スタンプをランダムで選択
-            }
         }
         .padding()
     }
 }
 
 #Preview {
-    TodayDataDetailView()
+    TodayDataDetailView(selectedTodayData: .constant(TodayData()), isPresented: false)
+}
+
+struct MoodTypeView: View {
+    @Binding var selectedTodayData: TodayData
+    var body: some View {
+        VStack{
+            Image(imageName())
+                .resizable()
+                .scaledToFit()
+                .frame(width: 30, height: 30)
+        }
+    }
+    
+    func imageName() -> String {
+        switch selectedTodayData.moodType {
+        case .happy:
+            return "mark_face_laugh"
+        case .sad:
+            return "mark_face_cry"
+        case .neutral:
+            return "mark_face_tere"
+        case .none:
+            return "mark_face_smile"
+        }
+    }
 }

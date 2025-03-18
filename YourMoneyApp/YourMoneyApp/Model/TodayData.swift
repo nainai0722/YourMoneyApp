@@ -33,6 +33,13 @@ final class TodayData {
     }
     
     init(timestamp: Date) {
+        self.kindergartenCalendarGone = false
+        self.morningRoutine = Routine.mockMorningRoutines
+        self.eveningRoutine = Routine.mockEveningRoutines
+        self.sleepTimeRoutine = Routine.mockSleepTimeRoutines
+        self.moodType = nil
+        self.bookReadDone = false
+        self.bookCount = 0
         self.timestamp = timestamp
     }
     

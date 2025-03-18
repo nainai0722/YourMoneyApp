@@ -87,7 +87,6 @@ struct MoneyRecordView: View {
     /// 🔹 **目標を読み込む処理**
     private func loadGoal() {
         if let userInfo = userInfos.first {
-            print("ローカルデータから取得")
             let goals = Goal.mockGoalsList
             if let currentGoal = goals.filter{ $0.isAchieved == false}.first {
                 goal = currentGoal

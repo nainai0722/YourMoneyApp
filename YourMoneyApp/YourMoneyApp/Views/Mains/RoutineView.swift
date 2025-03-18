@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct RoutineView: View {
+    @Binding var selectedTab: Int  // MainTabView から渡す
     @Environment(\.modelContext) private var modelContext
     @Query private var todayDatas: [TodayData]
     @State var todayData:TodayData = TodayData()
@@ -45,22 +46,12 @@ struct RoutineView: View {
                     Spacer()
                     
                     if allDoneCheck() {
-                        
                         NavigationLink {
                             RoutineCalendarView()
                         } label: {
                             Text("カレンダーを見る")
                                 .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
                         }
-                        
-//                        Button(action:{
-//                            allReset()
-//                        }){
-//                            Text("もう一回やる")
-//                                .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
-//                        }
-//                        .transition(.opacity)
-//                        .animation(.default, value: allDoneCheck())
                     }
                 }
                 if allDoneCheck() {
@@ -190,7 +181,7 @@ struct RoutineView: View {
 }
 
 #Preview {
-    RoutineView()
+    RoutineView(selectedTab: .constant(1))
         .modelContainer(for: TodayData.self)
 }
 

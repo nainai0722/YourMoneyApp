@@ -29,22 +29,24 @@ struct RoutineCalendarView:View {
                 .font(.title)
                 .bold()
                 .padding()
-            WeeklyTableView(selectedTodayData: $selectedTodayData)
             
             ScrollView(Axis.Set.horizontal) {
-                HStack {
+                HStack (spacing: 2) {
                     ForEach(completeTodayDatas, id: \.self) { todayData in
-                        TodayDataCellView(todayData: todayData)
+                        TodayDataCellView(todayData: todayData,selectedTodayData: $selectedTodayData)
                     }
                 }
             }
             
             
             if let selectedTodayData = selectedTodayData {
-                TodayDataDetailView(selectedTodayData: selectedTodayData)
-                    .padding(.top, 30)
-                    
+                TodayDataDetailView(selectedTodayData: Binding(
+                    get: { selectedTodayData },
+                    set: { self.selectedTodayData = $0 }
+                ))
             }
+
+            Spacer()
             
         }
     }
@@ -91,118 +93,38 @@ struct RoutineCalendarView:View {
 
 struct TodayDataCellView:View {
     var todayData:TodayData = TodayData()
-    var size:CGFloat = 150
+    @Binding var selectedTodayData: TodayData?
     var body: some View {
-        VStack{
-            Text(todayData.timestamp.formattedMonthDayString + todayData.timestamp.weekString)
+        Button(action:{
+            selectedTodayData = todayData
+            print("\(selectedTodayData?.timestamp)")
+        }){
+            VStack (spacing: 2){
+                VStack(spacing:0) {
+                    Text(todayData.timestamp.formattedMonthDayString)
+                    Text(todayData.timestamp.weekString)
+                }
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color.gray.opacity(0.2))
-            if todayData.morningRoutineDone {
-                DoneTypeWeeklyStampView()
-            } else {
-                EmptyCellView()
+                
+                if todayData.morningRoutineDone {
+                    DoneTypeWeeklyStampView()
+                } else {
+                    EmptyCellView()
+                }
+                if todayData.eveningRoutineDone {
+                    DoneTypeWeeklyStampView()
+                } else {
+                    EmptyCellView()
+                }
+                
             }
-            if todayData.eveningRoutineDone {
-                DoneTypeWeeklyStampView()
-            } else {
-                EmptyCellView()
-            }
-            
         }
-        .frame(width: size, height: size)
     }
     
     func week() -> String {
         todayData.timestamp.weekString
-    }
-}
-
-
-
-struct WeeklyTableView: View {
-    @Query private var todayDatas: [TodayData]
-    @Binding var selectedTodayData: TodayData?
-    let days = ["月", "火", "水", "木", "金", "土", "日"]
-
-    var body: some View {
-        VStack(spacing: 2) {
-            // 曜日（ヘッダー）
-            HStack(spacing: 2) {
-                ForEach(days, id: \.self) { day in
-                    Text(day)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                }
-            }
-
-            // データ行
-            HStack(spacing: 2) {
-                
-                WeekRoutineView(todayDatas: todayDatas, routineType: .morning, selectedTodayData: $selectedTodayData)
-            }
-            
-            HStack(spacing: 2) {
-                
-                WeekRoutineView(todayDatas: todayDatas, routineType: .evening, selectedTodayData: $selectedTodayData)
-            }
-        }
-    }
-}
-
-struct WeekRoutineView: View {
-    let todayDatas: [TodayData] // 保持しているデータ
-    let routineType:RoutineType
-    @Binding var selectedTodayData: TodayData?
-
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(0..<7, id: \.self) { index in
-                if let matchingData = todayDatas.first(where: { data in
-                    weekdayIndex(for: data.timestamp) == index + 1
-                }) {
-                    if isDone(todayData: matchingData, routineType: routineType) {
-                        Button(action: {
-                            print("\(matchingData.timestamp)が押された")
-                            selectedTodayData = matchingData
-                        }){
-                            DoneTypeWeeklyStampView()
-                        }
-                    } else {
-                        Button(action:{
-                            selectedTodayData = nil
-                        }){
-                            EmptyCellView()
-                        }
-                    }
-                } else {
-                    Button(action:{
-                        selectedTodayData = nil
-                    }){
-                        EmptyCellView()
-                    }
-                }
-            }
-        }
-    }
-    
-    func isDone(todayData: TodayData, routineType:RoutineType) -> Bool {
-        switch routineType {
-        case .morning:
-            return todayData.morningRoutineDone
-        case .evening:
-            return todayData.eveningRoutineDone
-        case .sleepTime:
-            return todayData.sleepTimeRoutineDone
-        }
-        
-    }
-
-    /// **日曜始まりの weekday を 月曜始まりに変換**
-    func weekdayIndex(for date: Date) -> Int {
-        let weekday = Calendar.current.component(.weekday, from: date)
-        return (weekday == 1) ? 7 : (weekday - 1) // 1(日) → 7, 2(月) → 1, ..., 7(土) → 6
     }
 }
 

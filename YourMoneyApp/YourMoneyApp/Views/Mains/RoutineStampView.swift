@@ -34,6 +34,7 @@ struct RoutineStampView: View {
 
 struct DoneTypeBStampView: View {
     var size :CGFloat = 90
+    var fontSize: CGFloat = 30
     var body: some View {
         VStack {
             ZStack {
@@ -43,7 +44,7 @@ struct DoneTypeBStampView: View {
                 Text("OK")
                     .foregroundStyle(.white)
                     .rotationEffect(.degrees(-40))
-                    .font(.system(size: 50))
+                    .font(.system(size: fontSize))
 
             }
             
@@ -53,6 +54,7 @@ struct DoneTypeBStampView: View {
 
 struct DoneTypeAStampView: View {
     var size :CGFloat = 90
+    var fontSize: CGFloat = 30
     var body: some View {
         VStack {
             ZStack {
@@ -63,12 +65,12 @@ struct DoneTypeAStampView: View {
                     Text("でき")
                         .foregroundStyle(.white)
                         .rotationEffect(.degrees(-40))
-                        .font(.system(size: 30))
+                        .font(.system(size: fontSize))
                         .offset(x:-20, y:10)
                     Text("たね")
                         .foregroundStyle(.white)
                         .rotationEffect(.degrees(-40))
-                        .font(.system(size: 30))
+                        .font(.system(size: fontSize))
                         .offset(x:0, y:-20)
                 }
             }
