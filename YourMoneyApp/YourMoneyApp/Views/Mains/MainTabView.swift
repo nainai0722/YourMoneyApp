@@ -25,6 +25,7 @@ struct MainTabView: View {
                 }
                 .tag(1)
             RoutineCalendarView()
+                .modelContainer(for: TodayData.self)
                 .tabItem {
                     Label("カレンダー", systemImage: "calendar")
                 }

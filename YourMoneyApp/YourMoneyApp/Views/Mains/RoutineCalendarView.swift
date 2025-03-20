@@ -29,6 +29,7 @@ struct RoutineCalendarView:View {
                 .font(.title)
                 .bold()
                 .padding()
+                .padding(.top,30)
             
             ScrollView(Axis.Set.horizontal) {
                 HStack (spacing: 2) {
@@ -40,12 +41,14 @@ struct RoutineCalendarView:View {
             
             
             if let selectedTodayData = selectedTodayData {
-                TodayDataDetailView(selectedTodayData: Binding(
-                    get: { selectedTodayData },
-                    set: { self.selectedTodayData = $0 }
-                ))
+                ScrollView {
+                    TodayDataDetailView(selectedTodayData: Binding(
+                        get: { selectedTodayData },
+                        set: { self.selectedTodayData = $0 }
+                    ))
+                }
             }
-
+            
             Spacer()
             
         }
@@ -64,7 +67,11 @@ struct RoutineCalendarView:View {
     }
     
     func fillMissingDates(todayDatas: [TodayData]) -> [TodayData] {
-        guard let first = todayDatas.first, let last = todayDatas.last else { return [] }
+        guard !todayDatas.isEmpty else { return [] }
+
+            let sortedData = todayDatas.sorted(by: { $0.timestamp < $1.timestamp }) // 昇順ソート
+        
+        guard let first = sortedData.first, let last = sortedData.last else { return [] }
         
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: first.timestamp)

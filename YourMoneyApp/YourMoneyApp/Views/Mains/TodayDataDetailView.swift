@@ -16,9 +16,11 @@ struct TodayDataDetailView: View {
     
     var body: some View {
         VStack {
-            Text("今日の詳細")
+            Text("\(selectedTodayData.timestamp.formattedMonthDayString_JP)のこまかい情報")
+                .font(.headline)
             Text(selectedTodayData.timestamp.formattedString)
-//            selectedTodayData.eveningRoutineDone ? Text("Evening routine is done") : Text("Evening routine is not done")
+                .font(.footnote)
+            Divider()
             
             ScrollView(.horizontal,showsIndicators: false) {
                 HStack(spacing:0) {
@@ -28,9 +30,17 @@ struct TodayDataDetailView: View {
                 }
             }
             
+//            ScrollView(.horizontal,showsIndicators: false) {
+//                HStack(spacing:0) {
+//                    ForEach(selectedTodayData.eveningRoutine, id: \.self) { routine in
+//                        StampMiniCellView(routine: routine)
+//                    }
+//                }
+//            }
+            
             ScrollView(.horizontal,showsIndicators: false) {
                 HStack(spacing:0) {
-                    ForEach(selectedTodayData.eveningRoutine, id: \.self) { routine in
+                    ForEach(selectedTodayData.sleepTimeRoutine, id: \.self) { routine in
                         StampMiniCellView(routine: routine)
                     }
                 }
@@ -97,12 +107,31 @@ struct TodayDataDetailView: View {
                     MoodTypeView(selectedTodayData:$selectedTodayData)
                     
                 }
+                
+                
             }
-            Spacer()
+            
+//            Text("幼稚園は\(selectedTodayData.kindergartenCalendarType!.rawValue)")
+            
+            Image("medalist_woman_color")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .opacity(selectedTodayData.kindergartenCalendarType == .gone ? 1 : 0)
+            
+            Image("shopping_supermarket_family_father")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .opacity(selectedTodayData.kindergartenCalendarType == .holiday ? 1 : 0)
+            
+//            Spacer()
             
         }
         .padding() // 余白をつける
     }
+    
+    
     
     private func saveData() {
            do {

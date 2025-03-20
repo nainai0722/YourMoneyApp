@@ -10,6 +10,7 @@ import SwiftData
 
 @Model
 final class TodayData {
+    var kindergartenCalendarType: KindergartenCalendarType?
     var kindergartenCalendarGone: Bool = false
     var morningRoutine: [Routine] = Routine.mockMorningRoutines
     var morningRoutineDone: Bool = false
@@ -22,7 +23,8 @@ final class TodayData {
     var bookCount: Int = 0
     var timestamp: Date = Date()
     
-    init(kindergartenCalendarGone: Bool, morningRoutine: [Routine], eveningRoutine: [Routine], moodType: MoodType? = nil, bookReadDone: Bool, bookCount: Int, timestamp: Date) {
+    init(kindergartenCalendarType: KindergartenCalendarType, kindergartenCalendarGone: Bool, morningRoutine: [Routine], eveningRoutine: [Routine], moodType: MoodType? = nil, bookReadDone: Bool, bookCount: Int, timestamp: Date) {
+        self.kindergartenCalendarType = kindergartenCalendarType
         self.kindergartenCalendarGone = kindergartenCalendarGone
         self.morningRoutine = morningRoutine
         self.eveningRoutine = eveningRoutine
@@ -33,6 +35,7 @@ final class TodayData {
     }
     
     init(timestamp: Date) {
+        self.kindergartenCalendarType = kindergartenCalendarType
         self.kindergartenCalendarGone = false
         self.morningRoutine = Routine.mockMorningRoutines
         self.eveningRoutine = Routine.mockEveningRoutines
@@ -44,6 +47,7 @@ final class TodayData {
     }
     
     init() {
+        self.kindergartenCalendarType = kindergartenCalendarType
         self.kindergartenCalendarGone = false
         self.morningRoutine = Routine.mockMorningRoutines
         self.eveningRoutine = Routine.mockEveningRoutines
@@ -59,4 +63,10 @@ enum MoodType: String, Codable, CaseIterable {
     case happy
     case sad
     case neutral
+}
+
+enum KindergartenCalendarType: String, Codable, CaseIterable {
+    case notGone = "行かなかった"
+    case gone = "行った"
+    case holiday = "お休みの日だった"
 }
