@@ -28,19 +28,22 @@ final class Routine {
     static let mockBottleRoutine = Routine(id: UUID(), name: "水筒", done: false, imageName: "bottle")
     static let mockGoodsRoutine = Routine(id: UUID(), name: "給食セット", done: false, imageName: "goods")
     static let scale = Routine(id: UUID(), name: "けんおん", done: false, imageName: "scale")
-    
     static let mock2 = Routine(id: UUID(), name: "カレンダー", done: false, imageName: "calender")
     static let mock3 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath")
     static let mock4 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath")
     static let mock5 = Routine(id: UUID(), name: "かみをかわかす", done: false, imageName: "dry")
     static let mock6 = Routine(id: UUID(), name: "はみがきをする", done: false, imageName: "hamigaki")
     
+    static let mockThreeRoutines: [Routine] = [mockEatRoutine, mockEToiletRoutine, mockWearRoutine]
+    
     static let mockMorningRoutines: [Routine] = [
         .mockWearRoutine,
         .mockEatRoutine,
         .mockEToiletRoutine,
         .mockBottleRoutine,
-        .mockGoodsRoutine
+        .mockGoodsRoutine,
+        mock6
+        
     ]
     
     static let mockEveningRoutines: [Routine] = [

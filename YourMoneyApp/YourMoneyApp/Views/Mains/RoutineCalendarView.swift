@@ -19,7 +19,7 @@ struct RoutineCalendarView:View {
     @Query private var todayDatas: [TodayData]
     @State var selectedTodayData: TodayData?
     @State private var showDetail = false
-    
+    @Query private var routineTitles: [RoutineTitle]
     var completeTodayDatas: [TodayData] {
         fillMissingDates(todayDatas: todayDatas)
     }
@@ -86,7 +86,7 @@ struct RoutineCalendarView:View {
                 filledData.append(existingData)
             } else {
                 // ない場合は新規作成
-                let newData = TodayData(timestamp: currentDate)
+                let newData = TodayData(timestamp: currentDate, routineTitles: routineTitles)
                 filledData.append(newData)
             }
             

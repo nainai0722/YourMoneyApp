@@ -1,5 +1,5 @@
 //
-//  RoutineView.swift
+//  RoutineListView.swift
 //  YourMoneyApp
 //
 //  Created by 指原奈々 on 2025/03/21.
@@ -8,24 +8,24 @@
 import SwiftUI
 import SwiftData
 
-struct RoutineView: View {
-    var routineTitle:RoutineTitle = RoutineTitle(name: "ゆうがたのしたく", routines: Routine.mockEveningRoutines)
-    
+struct RoutineListView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var routineTitles: [RoutineTitle]
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach(routineTitle.routines,id:\.id) {routine in
+                    ForEach(routineTitles, id: \.id) { routineTitle in
                         NavigationLink {
-                            Text(routine.name)
+                            RoutineView(routineTitle: routineTitle)
                         } label: {
-                            Text(routine.name)
+                            Text(routineTitle.name)
                         }
                     }
                 }
             }
         }
-        .navigationTitle(Text(routineTitle.name))
+        .navigationTitle(Text("おしたくリスト"))
     }
 }
 

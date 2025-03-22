@@ -19,7 +19,9 @@ struct MainTabView: View {
                     Label("おこづかい", systemImage: "nairasign.bank.building")
                 }
                 .tag(0)
-            RoutineView(selectedTab: $selectedTab)
+            DoneRoutineView(selectedTab: $selectedTab)
+                .modelContainer(for: TodayData.self)
+                .modelContainer(for: RoutineTitle.self)
                 .tabItem {
                     Label("おしたく", systemImage: "books.vertical")
                 }
@@ -35,6 +37,10 @@ struct MainTabView: View {
                     Label("ようちえん", systemImage: "figure.and.child.holdinghands")
                 }
                 .tag(3)
+            SettingView()
+                .tabItem {
+                    Label("設定", systemImage: "gearshape")
+                }
             
         }
     }

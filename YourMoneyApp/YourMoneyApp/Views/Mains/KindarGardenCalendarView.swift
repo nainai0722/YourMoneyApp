@@ -29,6 +29,7 @@ struct KindergartenCalendarView: View {
 
 struct CustomCalendarViewView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var routineTitles: [RoutineTitle]
     @State private var selectedDates: Set<DateComponents> = []
     let weekLabel:[String] = ["月","火","水","木","金","土","日"]
     var body: some View {
@@ -110,7 +111,7 @@ struct CustomCalendarViewView: View {
         }
 
         print("選択した日付のデータを新規作成")
-        let newData = TodayData(timestamp: date)
+        let newData = TodayData(timestamp: date, routineTitles: routineTitles)
         modelContext.insert(newData)
         return newData
     }

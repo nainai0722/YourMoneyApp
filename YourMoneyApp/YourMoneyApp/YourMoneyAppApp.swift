@@ -16,6 +16,7 @@ struct YourMoneyAppApp: App {
             UserInfo.self,
             TodayData.self,
             Routine.self,
+            RoutineTitle.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

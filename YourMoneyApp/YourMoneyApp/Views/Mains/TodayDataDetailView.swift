@@ -24,23 +24,17 @@ struct TodayDataDetailView: View {
             
             ScrollView(.horizontal,showsIndicators: false) {
                 HStack(spacing:0) {
-                    ForEach(selectedTodayData.morningRoutine, id: \.self) { routine in
+//                    let morningRoutines = selectedTodayData.routineTitles.filter { $0.name == "あさのしたく" }.first!.routines
+                    ForEach(selectedTodayData.routineTitles.filter { $0.name == "あさのしたく" }.first!.routines, id: \.id) { routine in
                         StampMiniCellView(routine: routine)
                     }
                 }
             }
             
-//            ScrollView(.horizontal,showsIndicators: false) {
-//                HStack(spacing:0) {
-//                    ForEach(selectedTodayData.eveningRoutine, id: \.self) { routine in
-//                        StampMiniCellView(routine: routine)
-//                    }
-//                }
-//            }
-            
             ScrollView(.horizontal,showsIndicators: false) {
                 HStack(spacing:0) {
-                    ForEach(selectedTodayData.sleepTimeRoutine, id: \.self) { routine in
+                    let sleepTimeRoutines = selectedTodayData.routineTitles.filter { $0.name == "ねるまえのしたく" }.first!.routines
+                    ForEach(sleepTimeRoutines, id: \.id) { routine in
                         StampMiniCellView(routine: routine)
                     }
                 }
