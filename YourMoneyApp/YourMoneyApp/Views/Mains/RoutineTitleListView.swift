@@ -18,13 +18,14 @@ struct RoutineTitleListView: View {
             List {
                 ForEach(routineTitles, id: \.id) { routineTitle in
                     Button(action: {
-                        selectedRoutineTitle = routineTitle  // クリックしたら選択する
+                        selectedRoutineTitle = routineTitle
+                        isPresented.toggle()
                     }) {
                         Text("\(routineTitle.name)")
                     }
                 }
                 Button(action:{
-                    print("押した")
+                    selectedRoutineTitle = nil
                     isPresented.toggle()
                 }){
                     Text("新しいしたくを追加する")
@@ -33,14 +34,21 @@ struct RoutineTitleListView: View {
         }
         .navigationTitle(Text("おしたくリスト"))
         .overlay(
-            AddRoutineTitleView(isPresented: $isPresented)
+            Group {
+                if var selectedRoutineTitle = selectedRoutineTitle {
+                    EditRoutineTitleView(
+                        isPresented: $isPresented,
+                        routineTitle: Binding(
+                            get: { selectedRoutineTitle },
+                            set: { selectedRoutineTitle = $0 }
+                        )
+                    )
+                } else {
+                    AddRoutineTitleView(isPresented: $isPresented)
+                }
+            }
         )
-        .sheet(item: $selectedRoutineTitle) { routineTitle in
-            EditRoutineTitleView(routineTitle: Binding(
-                    get: { routineTitle },
-                    set: { selectedRoutineTitle = $0 }
-                ))
-        }
+
     }
     
     func deleteRoutineTitle(_ routineTitle: RoutineTitle) {
@@ -60,39 +68,135 @@ struct RoutineTitleListView: View {
 struct AddRoutineTitleView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
-    @State var routineName: String = ""
+    @State private var routineName: String = ""
+
     var body: some View {
         ZStack {
-            Color.black.opacity(0.3)  // 透明な黒背景
-                .edgesIgnoringSafeArea(.all)  // 画面全体を覆う
-                .opacity(isPresented ? 1 : 0)
-            
             if isPresented {
-                Rectangle()
-                    .fill(Color.white)
-                    .cornerRadius(0.4)
-                    .frame(width: 300, height: 200)
-                VStack(alignment: .center) {
-                    TextField("おしたくを追加する", text:$routineName)
-                    Button(action:{
-                        if !routineName.isEmpty {
-                            addRoutineTitle(name: routineName)
-                        }
+                Color.black.opacity(0.3)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
                         isPresented = false
                         routineName = ""
-                    }){
-                        Text("閉じる")
                     }
+
+                VStack(spacing: 20) {
+                    Text("おしたくを追加する")
+                        .font(.headline)
+                    
+                    TextField("タイトルを入力", text: $routineName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal, 20)
+
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            isPresented = false
+                            routineName = ""
+                        }) {
+                            Text("キャンセル")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+
+                        Button(action: {
+                            if !routineName.isEmpty {
+                                addRoutineTitle(name: routineName)
+                            }
+                            isPresented = false
+                            routineName = ""
+                        }) {
+                            Text("追加")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.horizontal, 20)
                 }
-                .frame(width: 300, height: 200)
+                .frame(width: 300, height: 180)
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 10)
+                .transition(.opacity)
             }
-            
         }
+        .animation(.easeInOut(duration: 0.2), value: isPresented)
     }
+
     func addRoutineTitle(name: String) {
         let newRoutineTitle = RoutineTitle(name: name, routines: Routine.mockThreeRoutines)
         do {
             try modelContext.insert(newRoutineTitle)
+        } catch {
+            print("エラー: \(error.localizedDescription)")
+        }
+    }
+}
+struct EditRoutineTitleView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Binding var isPresented: Bool
+    @Binding var routineTitle: RoutineTitle
+
+    var body: some View {
+        ZStack {
+            if isPresented {
+                Color.black.opacity(0.3)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        isPresented = false
+                    }
+
+                VStack(spacing: 20) {
+                    Text("おしたくを変更する")
+                        .font(.headline)
+                    
+                    TextField("タイトルを入力", text: $routineTitle.name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal, 20)
+
+                    HStack(spacing: 20) {
+                        Button(action: {
+                            isPresented = false
+                        }) {
+                            Text("キャンセル")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+
+                        Button(action: {
+                            saveChanges()
+                        }) {
+                            Text("更新")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .frame(width: 300, height: 180)
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 10)
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isPresented)
+    }
+
+    func saveChanges() {
+        // 更新処理
+        do {
+            try modelContext.save()
+            isPresented = false
         } catch {
             print("エラー: \(error.localizedDescription)")
         }

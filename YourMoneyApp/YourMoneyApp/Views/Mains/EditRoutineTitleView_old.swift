@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EditRoutineTitleView: View {
+struct EditRoutineTitleView_old: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var routineTitle: RoutineTitle
     var body: some View {
@@ -26,6 +26,6 @@ struct EditRoutineTitleView: View {
 }
 
 #Preview {
-    EditRoutineTitleView(routineTitle: .constant(RoutineTitle(name: "test")))
+    EditRoutineTitleView_old(routineTitle: .constant(RoutineTitle(name: "test")))
         .modelContainer(for: RoutineTitle.self)
 }

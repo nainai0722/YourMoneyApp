@@ -27,11 +27,29 @@ struct YourMoneyAppApp: App {
         }
     }()
 
+    init (){
+        resetDatabase()
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()
         }
         .modelContainer(sharedModelContainer)
     }
+    
+
+    func resetDatabase() {
+        let container = try? ModelContainer(for: Money.self)
+        let storeURL = container?.configurations.first?.url
+
+        if let storeURL {
+            try? FileManager.default.removeItem(at: storeURL)
+            print("💾 データベースを削除しました")
+        }
+    }
+
 
 }
+
+

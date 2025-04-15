@@ -14,11 +14,6 @@ struct MainTabView: View {
     @State private var selectedTab = 1  // 初期タブのインデックスを設定
     var body: some View {
         TabView {
-            MoneyRecordView()
-                .tabItem {
-                    Label("おこづかい", systemImage: "nairasign.bank.building")
-                }
-                .tag(0)
             DoneRoutineView(selectedTab: $selectedTab)
                 .modelContainer(for: TodayData.self)
                 .modelContainer(for: RoutineTitle.self)

@@ -33,16 +33,25 @@ final class Routine {
     static let mock4 = Routine(id: UUID(), name: "お風呂", done: false, imageName: "bath")
     static let mock5 = Routine(id: UUID(), name: "かみをかわかす", done: false, imageName: "dry")
     static let mock6 = Routine(id: UUID(), name: "はみがきをする", done: false, imageName: "hamigaki")
+    // タオル
+    static let mock7 = Routine(id: UUID(), name: "タオル", done: false, imageName: "towel_kake")
+    // 箸
+    static let mock8 = Routine(id: UUID(), name: "おはし", done: false, imageName: "syokki_hashi_woman")
+    // 給食セット
+    static let mock9 = Routine(id: UUID(), name: "給食セット", done: false, imageName: "kyusyoku_fukuro")
     
     static let mockThreeRoutines: [Routine] = [mockEatRoutine, mockEToiletRoutine, mockWearRoutine]
     
     static let mockMorningRoutines: [Routine] = [
+        // きがえる・たべる・トイレ・水筒・給食セット・はみがきをする・タオル・おはし・ランチョンマット・上着
         .mockWearRoutine,
         .mockEatRoutine,
         .mockEToiletRoutine,
         .mockBottleRoutine,
         .mockGoodsRoutine,
-        mock6
+        .mock6,
+        .mock8,
+        .mock9
         
     ]
     
