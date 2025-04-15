@@ -28,7 +28,7 @@ struct RoutineTitleListView: View {
                     selectedRoutineTitle = nil
                     isPresented.toggle()
                 }){
-                    Text("新しいしたくを追加する")
+                    Text("新しいしたくタイトルを追加する")
                 }
             }
         }
@@ -52,8 +52,9 @@ struct RoutineTitleListView: View {
     }
     
     func deleteRoutineTitle(_ routineTitle: RoutineTitle) {
+        modelContext.delete(routineTitle)
         do {
-            try modelContext.delete(routineTitle)
+            try modelContext.save()
         } catch {
             print("削除エラー: \(error.localizedDescription)")
         }
@@ -129,8 +130,9 @@ struct AddRoutineTitleView: View {
 
     func addRoutineTitle(name: String) {
         let newRoutineTitle = RoutineTitle(name: name, routines: Routine.mockThreeRoutines)
+        modelContext.insert(newRoutineTitle)
         do {
-            try modelContext.insert(newRoutineTitle)
+            try modelContext.save()
         } catch {
             print("エラー: \(error.localizedDescription)")
         }

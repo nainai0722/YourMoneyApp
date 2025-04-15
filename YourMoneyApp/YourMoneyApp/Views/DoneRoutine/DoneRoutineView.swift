@@ -121,47 +121,6 @@ struct DoneRoutineView: View {
         }
     }
     
-    private func deleteMarch12Data() {
-        let fetchDescriptor = FetchDescriptor<TodayData>()
-        
-        do {
-            let allDays = try modelContext.fetch(fetchDescriptor)
-            
-            // 3/12 のデータをフィルタ
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy/MM/dd"
-            
-            let targetDateString = "2025/03/12" // 削除対象の日付
-            guard let targetDate = formatter.date(from: targetDateString) else { return }
-            
-            let march12Data = allDays.filter { Calendar.current.isDate($0.timestamp, inSameDayAs: targetDate) }
-            
-            // 削除処理
-            for data in march12Data {
-                modelContext.delete(data)
-            }
-            
-            try modelContext.save() // 削除を保存
-            
-            print("✅ 3/12 のデータを削除しました")
-        } catch {
-            print("❌ 削除に失敗: \(error.localizedDescription)")
-        }
-    }
-
-    private func generateDate(year:Int, Month:Int, day:Int) -> Date{
-        var dateComponents = DateComponents()
-        dateComponents.year = 2024
-        dateComponents.month = 11
-        dateComponents.day = 26
-        let calendar = Calendar.current
-        guard let specificDate = calendar.date(from: dateComponents) else {
-            return Date() //現時刻を返す
-        }
-        return specificDate
-    }
-    
-    
     func updateRoutinesDone() {
         print("ルーティンの更新")
         

@@ -15,14 +15,11 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             DoneRoutineView(selectedTab: $selectedTab)
-                .modelContainer(for: TodayData.self)
-                .modelContainer(for: RoutineTitle.self)
                 .tabItem {
                     Label("おしたく", systemImage: "books.vertical")
                 }
                 .tag(1)
             RoutineCalendarView()
-                .modelContainer(for: TodayData.self)
                 .tabItem {
                     Label("カレンダー", systemImage: "calendar")
                 }
@@ -43,5 +40,10 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .modelContainer(for: Money.self)
+        .modelContainer(for: UserInfo.self)
+        .modelContainer(for: TodayData.self)
+        .modelContainer(for: Routine.self)
+        .modelContainer(for: RoutineTitle.self)
 }
 

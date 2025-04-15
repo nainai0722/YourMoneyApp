@@ -9,30 +9,25 @@ import SwiftUI
 import SwiftData
 
 struct RoutineView: View {
-    @State var routineTitle:RoutineTitle = RoutineTitle(name: "ゆうがたのしたく", routines: Routine.mockEveningRoutines)
-    
+    @State var routineTitle:RoutineTitle
+    @Query private var routines: [Routine]
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach($routineTitle.routines,id:\.id) {$routine in
+                    ForEach(routines) { routine in
                         NavigationLink {
                             EditRoutineView(
-                                routineTitle: $routineTitle,
-                                routine: Binding<Routine?>(
-                                    get: { routine },      // 通常のRoutineをオプショナルとして取得
-                                    set: { routine = $0! }  // 更新を反映
-                                )
+                                routine: routine
                             )
                         } label: {
                             Text(routine.name)
                         }
 
                     }
+                    
                     NavigationLink {
                         EditRoutineView(
-                            routineTitle: $routineTitle,
-                            routine: .constant(nil) 
                         )
                     } label: {
                         Text("新しいしたくを追加する")
@@ -47,4 +42,5 @@ struct RoutineView: View {
 #Preview {
     RoutineListView()
         .modelContainer(for: RoutineTitle.self)
+        .modelContainer(for: Routine.self)
 }

@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Routine {
+final class Routine: Identifiable {
     var id : UUID?
     var name: String
     var done: Bool
@@ -56,9 +56,11 @@ final class Routine {
     ]
     
     static let mockEveningRoutines: [Routine] = [
-        mock2,
-        mock3,
-        mock5
+        .mockWearRoutine,
+        .mockEatRoutine,
+        .mockEToiletRoutine,
+        .mockBottleRoutine,
+        .mockGoodsRoutine,
     ]
     
     static let mockSleepTimeRoutines: [Routine] = [

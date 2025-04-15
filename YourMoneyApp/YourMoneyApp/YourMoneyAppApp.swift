@@ -28,7 +28,7 @@ struct YourMoneyAppApp: App {
     }()
 
     init (){
-        resetDatabase()
+//        resetDatabase()
     }
     
     var body: some Scene {

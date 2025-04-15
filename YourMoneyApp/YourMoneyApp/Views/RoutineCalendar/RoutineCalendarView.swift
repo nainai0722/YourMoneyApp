@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 #Preview {
-    
     RoutineCalendarView()
         .modelContainer(for: TodayData.self)
     
