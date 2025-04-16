@@ -14,7 +14,6 @@ import SwiftData
 }
 
 struct KindergartenCalendarView: View {
-    @Query private var todayDatas: [TodayData]
     var body: some View {
         VStack {
             BubbleView(text: "幼稚園に行ったら、スタンプを押そう")
@@ -29,7 +28,8 @@ struct KindergartenCalendarView: View {
 
 struct CustomCalendarViewView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var routineTitles: [RoutineTitle]
+    @Query private var todayDatas: [TodayData]
+    @Query private var routineTitles: [RoutineTitleTemplate]
     @State private var selectedDates: Set<DateComponents> = []
     let weekLabel:[String] = ["月","火","水","木","金","土","日"]
     var body: some View {
@@ -61,7 +61,12 @@ struct CustomCalendarViewView: View {
                                     toggleDateSelection(day)
                                     updateSelectedDates(day)
                                 }
-                            if selectedDates.contains(where: { isSameDate($0, day) }) {
+                            let isGoneDay = todayDatas.contains {
+                                            Calendar.current.isDate($0.timestamp, inSameDayAs: dateComponentsToDate(day) ?? Date()) && $0.kindergartenCalendarGone
+                            }
+                            let isSameDay = selectedDates.contains(where: { isSameDate($0, day) })
+
+                            if isGoneDay || isSameDay {
                                 DoneTypeMonthlyStampView()
                             } else {
                                 MonthlyNoStampView()
@@ -104,16 +109,58 @@ struct CustomCalendarViewView: View {
             let selectedDay = Calendar.current.startOfDay(for: date) // 0:00 のタイムスタンプ
             
             if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: selectedDay) }) {
+                todayData.kindergartenCalendarGone = true
+                todayData.kindergartenCalendarType = .gone
+                try modelContext.save()
                 return todayData
             }
         } catch {
             print("データの取得に失敗: \(error.localizedDescription)")
         }
-
         print("選択した日付のデータを新規作成")
-        let newData = TodayData(timestamp: date, routineTitles: routineTitles)
+        var todayRoutineTitle: [RoutineTitle] = getRoutineTitles(routineTitles)
+        
+        let newData = TodayData(timestamp: date, routineTitles: todayRoutineTitle)
+        newData.kindergartenCalendarGone = true
+        newData.kindergartenCalendarType = .gone
         modelContext.insert(newData)
+        
         return newData
+    }
+    
+    func getRoutineTitles(_ routineTitles: [RoutineTitleTemplate]) -> [RoutineTitle] {
+        var todayRoutineTitle: [RoutineTitle] = []
+        if routineTitles.isEmpty {
+            let morningRoutines = Routine.mockMorningRoutines.map { $0.cloned() }
+            let title1 = RoutineTitle(name: "あさのしたく", routines: morningRoutines)
+
+            let mockSleepTimeRoutines = Routine.mockSleepTimeRoutines.map { $0.cloned() }
+            let title2 = RoutineTitle(name: "ねるまえのしたく", routines: mockSleepTimeRoutines)
+
+            let mockEveningRoutines = Routine.mockEveningRoutines.map { $0.cloned() }
+            let title3 = RoutineTitle(name: "ゆうがたのしたく", routines: mockEveningRoutines)
+
+            
+            todayRoutineTitle.append(contentsOf: [title1, title2, title3])
+            print("なにもないので、デフォルトを追加")
+            print(todayRoutineTitle.count)
+            for title in todayRoutineTitle {
+                print("\(title.name)")
+            }
+            print("追加終わり")
+        } else {
+            for title in routineTitles {
+                todayRoutineTitle.append(convertTemplateToRoutine(title))
+            }
+        }
+        return todayRoutineTitle
+    }
+    
+    func convertTemplateToRoutine(_ template: RoutineTitleTemplate) -> RoutineTitle {
+        let convertedRoutines = template.routines.map { item in
+            Routine(name: item.name, done: false, imageName: item.imageName)
+        }
+        return RoutineTitle(name: template.name, routines: convertedRoutines)
     }
 
     // DateComponents → Date へ変換する関数
@@ -157,6 +204,7 @@ struct CustomCalendarViewView: View {
 }
 
 
+/// カレンダー用のスタンプ画面
 struct DoneTypeMonthlyStampView: View {
     var body: some View {
         ZStack {

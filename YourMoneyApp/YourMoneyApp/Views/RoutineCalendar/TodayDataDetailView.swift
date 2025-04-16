@@ -18,24 +18,21 @@ struct TodayDataDetailView: View {
         VStack {
             Text("\(selectedTodayData.timestamp.formattedMonthDayString_JP)のこまかい情報")
                 .font(.headline)
+            Text(selectedTodayData.kindergartenCalendarGone ? "幼稚園にいった": "幼稚園に行っていない")
+            if let kindergartenCalendarType = selectedTodayData.kindergartenCalendarType {
+                Text(kindergartenCalendarType.rawValue)
+            }
             Text(selectedTodayData.timestamp.formattedString)
                 .font(.footnote)
             Divider()
             
-            ScrollView(.horizontal,showsIndicators: false) {
-                HStack(spacing:0) {
-//                    let morningRoutines = selectedTodayData.routineTitles.filter { $0.name == "あさのしたく" }.first!.routines
-                    ForEach(selectedTodayData.routineTitles.filter { $0.name == "あさのしたく" }.first!.routines, id: \.id) { routine in
-                        StampMiniCellView(routine: routine)
-                    }
-                }
-            }
-            
-            ScrollView(.horizontal,showsIndicators: false) {
-                HStack(spacing:0) {
-                    let sleepTimeRoutines = selectedTodayData.routineTitles.filter { $0.name == "ねるまえのしたく" }.first!.routines
-                    ForEach(sleepTimeRoutines, id: \.id) { routine in
-                        StampMiniCellView(routine: routine)
+            ForEach(selectedTodayData.routineTitles){ title in
+                Text(title.name)
+                ScrollView(.horizontal,showsIndicators: false) {
+                    HStack(spacing:0) {
+                        ForEach(title.routines) { routine in
+                            StampMiniCellView(routine: routine)
+                        }
                     }
                 }
             }

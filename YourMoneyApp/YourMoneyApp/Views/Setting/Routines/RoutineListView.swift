@@ -10,7 +10,7 @@ import SwiftData
 
 struct RoutineListView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var routineTitles: [RoutineTitle]
+    @Query private var routineTitles: [RoutineTitleTemplate]
     var body: some View {
         NavigationStack {
             VStack {
@@ -31,5 +31,5 @@ struct RoutineListView: View {
 
 #Preview {
     RoutineListView()
-        .modelContainer(for: RoutineTitle.self)
+        .modelContainer(for: RoutineTitleTemplate.self)
 }

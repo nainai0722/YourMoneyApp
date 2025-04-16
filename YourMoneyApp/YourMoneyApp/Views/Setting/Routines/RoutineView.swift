@@ -9,26 +9,23 @@ import SwiftUI
 import SwiftData
 
 struct RoutineView: View {
-    @State var routineTitle:RoutineTitle
-    @Query private var routines: [Routine]
+    @State var routineTitle:RoutineTitleTemplate
     var body: some View {
         NavigationStack {
             VStack {
                 List {
-                    ForEach(routines) { routine in
+                    ForEach(routineTitle.routines) { routine in
                         NavigationLink {
                             EditRoutineView(
-                                routine: routine
+                                routine: routine, routineTitleId: routineTitle.id
                             )
                         } label: {
                             Text(routine.name)
                         }
-
                     }
                     
                     NavigationLink {
-                        EditRoutineView(
-                        )
+                        EditRoutineView(routineTitleId:routineTitle.id )
                     } label: {
                         Text("新しいしたくを追加する")
                     }
@@ -40,7 +37,7 @@ struct RoutineView: View {
 }
 
 #Preview {
-    RoutineListView()
-        .modelContainer(for: RoutineTitle.self)
-        .modelContainer(for: Routine.self)
+    RoutineView(routineTitle: RoutineTitleTemplate(name: "プレビュー"))
+        .modelContainer(for: RoutineTitleTemplate.self)
+        .modelContainer(for: RoutineTemplateItem.self)
 }

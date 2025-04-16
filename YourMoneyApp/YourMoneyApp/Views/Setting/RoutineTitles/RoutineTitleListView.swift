@@ -1,5 +1,5 @@
 //
-//  RoutineListView.swift
+//  RoutineTitleListView.swift
 //  YourMoneyApp
 //
 //  Created by 指原奈々 on 2025/03/20.
@@ -10,13 +10,13 @@ import SwiftData
 
 struct RoutineTitleListView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var routineTitles: [RoutineTitle]
+    @Query private var routineTitles: [RoutineTitleTemplate]
     @State var isPresented :Bool = false
-    @State private var selectedRoutineTitle: RoutineTitle?
+    @State private var selectedRoutineTitle: RoutineTitleTemplate?
     var body: some View {
         VStack {
             List {
-                ForEach(routineTitles, id: \.id) { routineTitle in
+                ForEach(routineTitles) { routineTitle in
                     Button(action: {
                         selectedRoutineTitle = routineTitle
                         isPresented.toggle()
@@ -51,7 +51,7 @@ struct RoutineTitleListView: View {
 
     }
     
-    func deleteRoutineTitle(_ routineTitle: RoutineTitle) {
+    func deleteRoutineTitle(_ routineTitle: RoutineTitleTemplate) {
         modelContext.delete(routineTitle)
         do {
             try modelContext.save()
@@ -63,14 +63,14 @@ struct RoutineTitleListView: View {
 
 #Preview {
     RoutineTitleListView()
-        .modelContainer(for: RoutineTitle.self)
+        .modelContainer(for: RoutineTitleTemplate.self)
 }
 
 struct AddRoutineTitleView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
     @State private var routineName: String = ""
-
+    @Query private var routineTitles: [RoutineTitleTemplate]
     var body: some View {
         ZStack {
             if isPresented {
@@ -129,10 +129,14 @@ struct AddRoutineTitleView: View {
     }
 
     func addRoutineTitle(name: String) {
-        let newRoutineTitle = RoutineTitle(name: name, routines: Routine.mockThreeRoutines)
+        let newRoutineTitle = RoutineTitleTemplate(name: name, routines: RoutineTemplateItem.mockThreeRoutines)
         modelContext.insert(newRoutineTitle)
+        print("タイトルを追加しました")
+        print("追加後の件数: \(routineTitles.count)") // Listの更新を確認
+
         do {
             try modelContext.save()
+            print("追加後の件数: \(routineTitles.count)") // Listの更新を確認
         } catch {
             print("エラー: \(error.localizedDescription)")
         }
@@ -141,7 +145,7 @@ struct AddRoutineTitleView: View {
 struct EditRoutineTitleView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var isPresented: Bool
-    @Binding var routineTitle: RoutineTitle
+    @Binding var routineTitle: RoutineTitleTemplate
 
     var body: some View {
         ZStack {

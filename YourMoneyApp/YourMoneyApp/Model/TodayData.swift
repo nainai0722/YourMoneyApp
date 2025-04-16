@@ -10,26 +10,22 @@ import SwiftData
 
 @Model
 final class TodayData {
-    var routineTitles: [RoutineTitle]
+    @Attribute(.unique) var id: UUID = UUID()
+    @Relationship var routineTitles: [RoutineTitle]
     var kindergartenCalendarType: KindergartenCalendarType?
     var kindergartenCalendarGone: Bool = false
-    var morningRoutine: [Routine] = Routine.mockMorningRoutines
     var morningRoutineDone: Bool = false
-    var eveningRoutine: [Routine] = Routine.mockEveningRoutines
     var eveningRoutineDone: Bool = false
-    var sleepTimeRoutine: [Routine] = Routine.mockSleepTimeRoutines
     var sleepTimeRoutineDone: Bool = false
     var moodType: MoodType?
     var bookReadDone: Bool = false
     var bookCount: Int = 0
     var timestamp: Date = Date()
     
-    init(routineTitles: [RoutineTitle],kindergartenCalendarType: KindergartenCalendarType, kindergartenCalendarGone: Bool, morningRoutine: [Routine], eveningRoutine: [Routine], moodType: MoodType? = nil, bookReadDone: Bool, bookCount: Int, timestamp: Date) {
+    init(routineTitles: [RoutineTitle],kindergartenCalendarType: KindergartenCalendarType, kindergartenCalendarGone: Bool, moodType: MoodType? = nil, bookReadDone: Bool, bookCount: Int, timestamp: Date) {
         self.routineTitles = routineTitles
         self.kindergartenCalendarType = kindergartenCalendarType
         self.kindergartenCalendarGone = kindergartenCalendarGone
-        self.morningRoutine = morningRoutine
-        self.eveningRoutine = eveningRoutine
         self.moodType = moodType
         self.bookReadDone = bookReadDone
         self.bookCount = bookCount
@@ -38,24 +34,18 @@ final class TodayData {
     
     init(timestamp: Date) {
         self.routineTitles = [RoutineTitle(name: "あさのしたく", routines: Routine.mockMorningRoutines), RoutineTitle(name: "ゆうがたのしたく", routines: Routine.mockEveningRoutines), RoutineTitle(name: "ねるまえのしたく", routines: Routine.mockSleepTimeRoutines)]
-        self.kindergartenCalendarType = kindergartenCalendarType
+        self.kindergartenCalendarType = .none
         self.kindergartenCalendarGone = false
-        self.morningRoutine = Routine.mockMorningRoutines
-        self.eveningRoutine = Routine.mockEveningRoutines
-        self.sleepTimeRoutine = Routine.mockSleepTimeRoutines
         self.moodType = nil
         self.bookReadDone = false
         self.bookCount = 0
         self.timestamp = timestamp
     }
     
-    init(timestamp: Date, routineTitles: [RoutineTitle]) {
+    init(timestamp: Date, routineTitles: [RoutineTitle] = []) {
         self.routineTitles = routineTitles
-        self.kindergartenCalendarType = kindergartenCalendarType
+        self.kindergartenCalendarType = .none
         self.kindergartenCalendarGone = false
-        self.morningRoutine = Routine.mockMorningRoutines
-        self.eveningRoutine = Routine.mockEveningRoutines
-        self.sleepTimeRoutine = Routine.mockSleepTimeRoutines
         self.moodType = nil
         self.bookReadDone = false
         self.bookCount = 0
@@ -64,11 +54,8 @@ final class TodayData {
     
     init() {
         self.routineTitles = [RoutineTitle(name: "あさのしたく", routines: Routine.mockMorningRoutines), RoutineTitle(name: "ゆうがたのしたく", routines: Routine.mockEveningRoutines), RoutineTitle(name: "ねるまえのしたく", routines: Routine.mockSleepTimeRoutines)]
-        self.kindergartenCalendarType = kindergartenCalendarType
+        self.kindergartenCalendarType = .none
         self.kindergartenCalendarGone = false
-        self.morningRoutine = Routine.mockMorningRoutines
-        self.eveningRoutine = Routine.mockEveningRoutines
-        self.sleepTimeRoutine = Routine.mockSleepTimeRoutines
         self.moodType = nil
         self.bookReadDone = false
         self.bookCount = 0

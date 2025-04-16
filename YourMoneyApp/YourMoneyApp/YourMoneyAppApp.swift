@@ -16,9 +16,14 @@ struct YourMoneyAppApp: App {
             UserInfo.self,
             TodayData.self,
             Routine.self,
-            RoutineTitle.self
+            RoutineTitle.self,
+            RoutineTemplateItem.self,
+            RoutineTitleTemplate.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+//　マイグレーションエラー対策
+//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -27,15 +32,17 @@ struct YourMoneyAppApp: App {
         }
     }()
 
-    init (){
-//        resetDatabase()
-    }
-    
     var body: some Scene {
         WindowGroup {
             MainTabView()
         }
         .modelContainer(sharedModelContainer)
+    }
+    
+    
+    
+    init (){
+//        resetDatabase()
     }
     
 

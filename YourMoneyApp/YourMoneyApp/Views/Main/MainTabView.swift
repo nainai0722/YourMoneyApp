@@ -14,7 +14,7 @@ struct MainTabView: View {
     @State private var selectedTab = 1  // 初期タブのインデックスを設定
     var body: some View {
         TabView {
-            DoneRoutineView(selectedTab: $selectedTab)
+            DoneRoutineView()
                 .tabItem {
                     Label("おしたく", systemImage: "books.vertical")
                 }
@@ -40,10 +40,12 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
-        .modelContainer(for: Money.self)
-        .modelContainer(for: UserInfo.self)
-        .modelContainer(for: TodayData.self)
-        .modelContainer(for: Routine.self)
-        .modelContainer(for: RoutineTitle.self)
+        .modelContainer(for: [
+            Money.self,
+            UserInfo.self,
+            TodayData.self,
+            Routine.self,
+            RoutineTitle.self
+        ])
 }
 
