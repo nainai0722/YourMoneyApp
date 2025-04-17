@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-
+@MainActor
 struct DoneRoutineView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var routineTitles: [RoutineTitleTemplate]

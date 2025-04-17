@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 struct EditRoutineView: View {
     @Environment(\.presentationMode) var presentationMode:Binding<PresentationMode>
     @Environment(\.modelContext) private var modelContext
@@ -15,15 +16,23 @@ struct EditRoutineView: View {
     @State var editTitle: String = ""
     @State var editImage: String = ""
     @State var isEdit: Bool = false
+    let imageArray:[String] = ["bath","eat","calender","clock","cut"]
     var routineTitleId : UUID
     var body: some View {
         VStack {
             TextField("タイトルを入力", text: $editTitle)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal, 20)
-            GridView(imageArray: ["bath","eat"], onTap: { imageName in
-                editImage = imageName
+            Text("選択中の画像")
+            IconView(imageName: editImage, size: 80, fontsize: 10, onTap: {
+                print("選択中の画像")
             })
+            Text("他の画像を選択する")
+            ScrollView {
+                GridView(imageArray:imageArray , onTap: { imageName in
+                    editImage = imageName
+                })
+            }
             
             if isEdit {
                 Button(action: {
@@ -50,10 +59,20 @@ struct EditRoutineView: View {
         .onAppear() {
             if let routine = routine {
                 editTitle = routine.name
+                editImage = routine.imageName
                 isEdit = true
             }
+            listAssetCatalogImageNames()
         }
     }
+    
+    func listAssetCatalogImageNames() -> [String] {
+        var result: [String] = []
+        let assetCatalogPath = Bundle.main.resourcePath! + "/Assets.car"
+        print("Assets.car の中身は直接読めない😢: \(assetCatalogPath)")
+        return result
+    }
+
 
     func delete(_ routine: RoutineTemplateItem) {
         routine.name = editTitle
@@ -70,8 +89,6 @@ struct EditRoutineView: View {
         } catch {
             print("❌ データの取得または更新に失敗: \(error.localizedDescription)")
         }
-        
-        
     }
     
     func update(_ routine: RoutineTemplateItem) {
@@ -86,6 +103,8 @@ struct EditRoutineView: View {
             
             if let routineTitle = routineTitle, let updateRoutine = routineTitle.routines.first(where: { $0.id == routine.id }) {
                 updateRoutine.name = editTitle
+                updateRoutine.imageName = editImage
+                try modelContext.save()
             }
         } catch {
             print("❌ データの取得または更新に失敗: \(error.localizedDescription)")
@@ -119,6 +138,6 @@ struct EditRoutineView: View {
 
 #Preview {
     EditRoutineView(routineTitleId: UUID())
-    .modelContainer(for: RoutineTitleTemplate.self)
+        .modelContainer(for: RoutineTitleTemplate.self)
 }
 

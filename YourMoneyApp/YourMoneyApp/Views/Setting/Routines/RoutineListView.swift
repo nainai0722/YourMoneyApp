@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 struct RoutineListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var routineTitles: [RoutineTitleTemplate]

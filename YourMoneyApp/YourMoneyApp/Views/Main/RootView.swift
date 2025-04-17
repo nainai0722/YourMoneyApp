@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 struct RootView: View {
     @State private var isInitialized: Bool = false
     @Environment(\.modelContext) private var modelContext
@@ -71,7 +72,7 @@ struct RootView: View {
     /// ルーティンを取得する
     /// - Parameter routineTitles: テンプレートのルーティン
     /// - Returns: TodayData用のルーティンを返す
-    func getRoutineTitles(_ routineTitles: [RoutineTitleTemplate]) async -> [RoutineTitle] {
+    func getRoutineTitlesFromTemplateAsync (_ routineTitles: [RoutineTitleTemplate]) async -> [RoutineTitle] {
         var todayRoutineTitle: [RoutineTitle] = []
         if routineTitles.isEmpty {
             for title in fetchTemplateData() {
@@ -92,7 +93,7 @@ struct RootView: View {
                 let today = Calendar.current.startOfDay(for: Date()) // 今日の0:00のタイムスタンプ
                 if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: today) }) {
                     if todayData.routineTitles.isEmpty {
-                        todayData.routineTitles = await getRoutineTitles(templates)
+                        todayData.routineTitles = await getRoutineTitlesFromTemplateAsync(templates)
                     }
                 } else {
                     print("今日のデータがないので新規作成")
@@ -108,7 +109,7 @@ struct RootView: View {
     func makeNewTodayData() async {
         do {
             let templates = try modelContext.fetch(FetchDescriptor<RoutineTitleTemplate>())
-            let routine = await getRoutineTitles(templates)
+            let routine = await getRoutineTitlesFromTemplateAsync(templates)
             let todayData = TodayData(timestamp: Date(), routineTitles: routine)
 
             

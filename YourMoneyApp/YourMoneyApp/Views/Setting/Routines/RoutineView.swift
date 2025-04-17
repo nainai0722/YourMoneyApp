@@ -38,6 +38,5 @@ struct RoutineView: View {
 
 #Preview {
     RoutineView(routineTitle: RoutineTitleTemplate(name: "プレビュー"))
-        .modelContainer(for: RoutineTitleTemplate.self)
-        .modelContainer(for: RoutineTemplateItem.self)
+        .modelContainer(for: [RoutineTitleTemplate.self, RoutineTemplateItem.self])
 }

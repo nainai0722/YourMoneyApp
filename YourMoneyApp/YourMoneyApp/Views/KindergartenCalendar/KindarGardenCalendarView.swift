@@ -25,7 +25,7 @@ struct KindergartenCalendarView: View {
     }
 }
 
-
+@MainActor
 struct CustomCalendarViewView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var todayDatas: [TodayData]
@@ -92,16 +92,23 @@ struct CustomCalendarViewView: View {
         // TodayDataモデルから同じ日付のデータがないか調べる
         let selectedTodayData = fetchSelectedData(date)
         // 存在していれば、TodayDataのkindergartenCalendarGoneを更新する
-        selectedTodayData.kindergartenCalendarGone = !selectedTodayData.kindergartenCalendarGone
+        selectedTodayData.kindergartenCalendarGone.toggle()
+        selectedTodayData.kindergartenCalendarType = selectedTodayData.kindergartenCalendarGone ? .gone : .notGone
+
         // modelContextを更新する
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("保存に失敗: \(error.localizedDescription)")
+        }
     }
 
     private func fetchSelectedData(_ dateComponents: DateComponents) -> TodayData {
         let fetchDescriptor = FetchDescriptor<TodayData>()
         
         guard let date = dateComponentsToDate(dateComponents) else {
-            fatalError("無効な DateComponents: \(dateComponents)")
+//            fatalError("無効な DateComponents: \(dateComponents)")
+            return TodayData(timestamp: Date(), routineTitles: [])
         }
         
         do {
@@ -109,26 +116,20 @@ struct CustomCalendarViewView: View {
             let selectedDay = Calendar.current.startOfDay(for: date) // 0:00 のタイムスタンプ
             
             if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: selectedDay) }) {
-                todayData.kindergartenCalendarGone = true
-                todayData.kindergartenCalendarType = .gone
-                try modelContext.save()
                 return todayData
             }
         } catch {
             print("データの取得に失敗: \(error.localizedDescription)")
         }
         print("選択した日付のデータを新規作成")
-        var todayRoutineTitle: [RoutineTitle] = getRoutineTitles(routineTitles)
+        let todayRoutineTitle: [RoutineTitle] = getRoutineTitlesFromTemplate(routineTitles)
         
         let newData = TodayData(timestamp: date, routineTitles: todayRoutineTitle)
-        newData.kindergartenCalendarGone = true
-        newData.kindergartenCalendarType = .gone
         modelContext.insert(newData)
-        
         return newData
     }
     
-    func getRoutineTitles(_ routineTitles: [RoutineTitleTemplate]) -> [RoutineTitle] {
+    func getRoutineTitlesFromTemplate(_ routineTitles: [RoutineTitleTemplate]) -> [RoutineTitle] {
         var todayRoutineTitle: [RoutineTitle] = []
         if routineTitles.isEmpty {
             let morningRoutines = Routine.mockMorningRoutines.map { $0.cloned() }
