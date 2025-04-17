@@ -13,6 +13,7 @@ struct EditRoutineView: View {
     @Environment(\.modelContext) private var modelContext
     @State var routine:RoutineTemplateItem?
     @State var editTitle: String = ""
+    @State var editImage: String = ""
     @State var isEdit: Bool = false
     var routineTitleId : UUID
     var body: some View {
@@ -20,6 +21,10 @@ struct EditRoutineView: View {
             TextField("タイトルを入力", text: $editTitle)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal, 20)
+            GridView(imageArray: ["bath","eat"], onTap: { imageName in
+                editImage = imageName
+            })
+            
             if isEdit {
                 Button(action: {
                     if let routine = routine {
@@ -40,6 +45,7 @@ struct EditRoutineView: View {
             }){
                 Text(isEdit ?"更新" : "保存")
             }
+            
         }
         .onAppear() {
             if let routine = routine {
@@ -70,6 +76,7 @@ struct EditRoutineView: View {
     
     func update(_ routine: RoutineTemplateItem) {
         routine.name = editTitle
+        routine.imageName = editImage
         
         let fetchDescriptor = FetchDescriptor<RoutineTitleTemplate>()
         // 更新処理
@@ -88,12 +95,17 @@ struct EditRoutineView: View {
     func add() {
         let fetchDescriptor = FetchDescriptor<RoutineTitleTemplate>()
         
+        if editImage == "" || editTitle == "" {
+            print("データを入れてください")
+            return
+        }
+        
         do {
             let routineTitles = try modelContext.fetch(fetchDescriptor)
             let routineTitle = routineTitles.first(where: { $0.id == routineTitleId })
             print("routineTitle: \(routineTitle?.name)")
             if let routineTitle = routineTitle {
-                let newRoutine = RoutineTemplateItem(name: editTitle, done: false, imageName: "bath")
+                let newRoutine = RoutineTemplateItem(name: editTitle, done: false, imageName: editImage)
                 routineTitle.routines.append(newRoutine)
                 modelContext.insert(newRoutine)
                 print("保存処理完了")
@@ -109,3 +121,4 @@ struct EditRoutineView: View {
     EditRoutineView(routineTitleId: UUID())
     .modelContainer(for: RoutineTitleTemplate.self)
 }
+

@@ -18,19 +18,6 @@ struct DoneRoutineView: View {
     @State var routines :[Routine] = []
     var body : some View {
         VStack {
-//            Text("DoneRoutineView2")
-//            List {
-////                検証用
-////                ForEach(routineTitles){ title in
-////                    Text(title.name)
-////                }
-////                ForEach(todayDatas){ data in
-////                    Text(data.timestamp.formattedMonthDayString_JP)
-////                }
-////                ForEach(todayData.routineTitles){ title in
-////                    Text(title.name)
-////                }
-//            }
             NavigationSplitView {
                 ZStack {
                     VStack {
@@ -73,10 +60,7 @@ struct DoneRoutineView: View {
             }
         }
         .onAppear {
-            print("DoneRoutineView2.onAppear")
             fetchTodayData()
-//            makeNewTodayData()
-            print(todayData.routineTitles.count)
         }
     }
     
@@ -124,89 +108,8 @@ struct DoneRoutineView: View {
             let today = Calendar.current.startOfDay(for: Date()) // 今日の0:00のタイムスタンプ
             if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: today) }) {
                 self.todayData = todayData
-                print("今日のデータ: \(todayData.timestamp.formatted())")
-                print("routineTitles一覧")
-                for title in routineTitles {
-                    print("\(title.name)")
-                    print("done: \(title.done)")
-                }
-                if todayData.routineTitles.isEmpty {
-                    var todayRoutineTitle: [RoutineTitle] = getRoutineTitles(routineTitles)
-                    
-                    todayData.routineTitles = todayRoutineTitle
-                }
-                print("今日のデータのroutineTitles一覧")
-                for title in todayData.routineTitles {
-                    print("\(title.name)")
-                    print("done: \(title.done)")
-                    for routine in title.routines {
-                        print("\(routine.name)")
-                        print("done: \(routine.done)")
-                    }
-                }
-            } else {
-                print("今日のデータがないので新規作成")
-                makeNewTodayData()
             }
         }
-    }
-    
-    func getRoutineTitles(_ routineTitles: [RoutineTitleTemplate]) -> [RoutineTitle] {
-        var todayRoutineTitle: [RoutineTitle] = []
-        if routineTitles.isEmpty {
-            let morningRoutines = Routine.mockMorningRoutines.map { $0.cloned() }
-            let title1 = RoutineTitle(name: "あさのしたく", routines: morningRoutines)
-
-            let mockSleepTimeRoutines = Routine.mockSleepTimeRoutines.map { $0.cloned() }
-            let title2 = RoutineTitle(name: "ねるまえのしたく", routines: mockSleepTimeRoutines)
-
-            let mockEveningRoutines = Routine.mockEveningRoutines.map { $0.cloned() }
-            let title3 = RoutineTitle(name: "ゆうがたのしたく", routines: mockEveningRoutines)
-
-            
-            todayRoutineTitle.append(contentsOf: [title1, title2, title3])
-            print("なにもないので、デフォルトを追加")
-            print(todayRoutineTitle.count)
-            for title in todayRoutineTitle {
-                print("\(title.name)")
-            }
-            print("追加終わり")
-        } else {
-            for title in routineTitles {
-                todayRoutineTitle.append(convertTemplateToRoutine(title))
-            }
-        }
-        return todayRoutineTitle
-    }
-    
-    func makeNewTodayData() {
-        self.todayData = TodayData(timestamp: Date(), routineTitles:getRoutineTitles(routineTitles))
-        
-        for title in self.todayData.routineTitles {
-            print("\(title.name)")
-            print("done: \(title.done)")
-        }
-        modelContext.insert(self.todayData) // SwiftDataに保存
-        do {
-            try modelContext.save()
-        }
-        catch {
-            
-        }
-    }
-    
-    func convertTemplateToRoutine(_ template: RoutineTitleTemplate) -> RoutineTitle {
-        let convertedRoutines = template.routines.map { item in
-            Routine(name: item.name, done: false, imageName: item.imageName)
-        }
-        return RoutineTitle(name: template.name, routines: convertedRoutines)
-    }
-    
-    func convertRoutineToTemplate(_ routineTitle: RoutineTitle) -> RoutineTitleTemplate {
-        let convertedTemplateRoutines = routineTitle.routines.map { item in
-            RoutineTemplateItem(name: item.name, done: item.done, imageName: item.imageName)
-        }
-        return RoutineTitleTemplate(name: routineTitle.name, routines: convertedTemplateRoutines)
     }
 }
 
@@ -220,6 +123,19 @@ extension RoutineTitle {
     func cloned() -> RoutineTitle {
         let newRoutines = self.routines.map { $0.cloned() }
         return RoutineTitle(name: self.name, routines: newRoutines)
+    }
+}
+
+extension RoutineTemplateItem {
+    func cloned() -> RoutineTemplateItem {
+        RoutineTemplateItem(name: self.name, done: self.done, imageName: self.imageName)
+    }
+}
+
+extension RoutineTitleTemplate {
+    func cloned() -> RoutineTitleTemplate {
+        let newRoutines = self.routines.map { $0.cloned() }
+        return RoutineTitleTemplate(name: self.name, routines: newRoutines)
     }
 }
 
