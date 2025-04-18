@@ -10,7 +10,7 @@ import SwiftUI
 
 struct GridView: View {
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-    @State var imageArray = ["bath","eat"]
+    let imageArray: [String]
     let onTap: (String) -> Void
     var body: some View {
         ZStack {

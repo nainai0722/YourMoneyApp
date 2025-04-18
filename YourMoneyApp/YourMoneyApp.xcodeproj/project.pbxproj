@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F8EF12BA2DB22119009DF0DC /* ImageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8EF12B92DB22119009DF0DC /* ImageList.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F8C6E2CB2D74851E00914220 /* YourMoneyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YourMoneyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8EF12B92DB22119009DF0DC /* ImageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		F8C6E2C22D74851E00914220 = {
 			isa = PBXGroup;
 			children = (
+				F8EF12B92DB22119009DF0DC /* ImageList.swift */,
 				F8C6E2CD2D74851E00914220 /* YourMoneyApp */,
 				F8C6E2CC2D74851E00914220 /* Products */,
 			);
@@ -119,6 +125,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8EF12BA2DB22119009DF0DC /* ImageList.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

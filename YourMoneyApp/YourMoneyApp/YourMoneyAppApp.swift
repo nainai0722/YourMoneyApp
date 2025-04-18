@@ -35,6 +35,8 @@ struct YourMoneyAppApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+//            ImageList()
+            
         }
         .modelContainer(sharedModelContainer)
     }

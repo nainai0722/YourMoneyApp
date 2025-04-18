@@ -8,6 +8,13 @@
 import SwiftUI
 import SwiftData
 
+enum ImageType: String, CaseIterable {
+    case foodDink = "food-drink"
+    case life = "life"
+    case school = "school"
+    case snow = "snow"
+}
+
 @MainActor
 struct EditRoutineView: View {
     @Environment(\.presentationMode) var presentationMode:Binding<PresentationMode>
@@ -16,7 +23,7 @@ struct EditRoutineView: View {
     @State var editTitle: String = ""
     @State var editImage: String = ""
     @State var isEdit: Bool = false
-    let imageArray:[String] = ["bath","eat","calender","clock","cut"]
+    @State var imageArray:[String] = []
     var routineTitleId : UUID
     var body: some View {
         VStack {
@@ -33,45 +40,49 @@ struct EditRoutineView: View {
                     editImage = imageName
                 })
             }
-            
-            if isEdit {
-                Button(action: {
+            HStack {
+                if isEdit {
+                    Button(action: {
+                        if let routine = routine {
+                            delete(routine)
+                        }
+                        self.presentationMode.wrappedValue.dismiss()
+                    }){
+                        Text("削除")
+                    }
+                }
+                Button(action:{
                     if let routine = routine {
-                        delete(routine)
+                        update(routine)
+                    } else {
+                        add()
                     }
                     self.presentationMode.wrappedValue.dismiss()
                 }){
-                    Text("削除")
+                    Text(isEdit ?"更新" : "保存")
                 }
             }
-            Button(action:{
-                if let routine = routine {
-                    update(routine)
-                } else {
-                    add()
-                }
-                self.presentationMode.wrappedValue.dismiss()
-            }){
-                Text(isEdit ?"更新" : "保存")
-            }
-            
         }
         .onAppear() {
+            imageArray = (1...70).map { "food-drink_image\($0)" }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                print("追加後：", imageArray)
+            }
             if let routine = routine {
                 editTitle = routine.name
                 editImage = routine.imageName
                 isEdit = true
             }
-            listAssetCatalogImageNames()
+//            listAssetCatalogImageNames()
         }
     }
     
-    func listAssetCatalogImageNames() -> [String] {
-        var result: [String] = []
-        let assetCatalogPath = Bundle.main.resourcePath! + "/Assets.car"
-        print("Assets.car の中身は直接読めない😢: \(assetCatalogPath)")
-        return result
-    }
+//    func listAssetCatalogImageNames() -> [String] {
+//        var result: [String] = []
+//        let assetCatalogPath = Bundle.main.resourcePath! + "/Assets.car"
+//        print("Assets.car の中身は直接読めない😢: \(assetCatalogPath)")
+//        return result
+//    }
 
 
     func delete(_ routine: RoutineTemplateItem) {
@@ -135,9 +146,9 @@ struct EditRoutineView: View {
         }
     }
 }
-
-#Preview {
-    EditRoutineView(routineTitleId: UUID())
-        .modelContainer(for: RoutineTitleTemplate.self)
-}
+//
+//#Preview {
+//    EditRoutineView(routineTitleId: UUID())
+//        .modelContainer(for: RoutineTitleTemplate.self)
+//}
 
