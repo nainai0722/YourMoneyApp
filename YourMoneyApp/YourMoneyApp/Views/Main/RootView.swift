@@ -28,6 +28,7 @@ struct RootView: View {
     func initializeApp() async {
         do {
             await fetchTodayData()
+            await fetchImageData()
 //            try await Task.sleep(nanoseconds: 1_000_000_000)
         } catch {
             print(error)
@@ -38,6 +39,41 @@ struct RootView: View {
         isInitialized = true
     }
     
+    func fetchImageData() async {
+        do {
+            let allImageData = try modelContext.fetch(FetchDescriptor<ImageData>())
+            // データが格納されているとき早期リターン
+            if !allImageData.isEmpty {
+                return
+            }
+            // すべてのデータを投入する
+            for i in 1...70 {
+                let imageData = ImageData(fileName: "food-drink_image\(i)", category: .foodDrink, isPinned: false, timestamp: Date())
+                modelContext.insert(imageData)
+            }
+            for i in 1...20 {
+                let imageData = ImageData(fileName: "school_image\(i)", category: .school, isPinned: false, timestamp: Date())
+                modelContext.insert(imageData)
+            }
+            for i in 1...20 {
+                let imageData = ImageData(fileName: "life_image\(i)", category: .life, isPinned: false, timestamp: Date())
+                modelContext.insert(imageData)
+            }
+            // データベースに保存
+            try modelContext.save()
+            
+            #if DEBUG
+            let allImageData2 = try modelContext.fetch(FetchDescriptor<ImageData>())
+            print("画像データの数 : \(allImageData2.count)")
+            for data in allImageData2 {
+                print("fetchImageData: \(data.fileName)")
+            }
+            #endif
+            
+        } catch {
+            print(error)
+        }
+    }
     
     /// テンプレートがないときにデフォルトの内容を追加する
     /// - Returns: デフォルトテンプレートを返却
@@ -118,13 +154,7 @@ struct RootView: View {
                 print("done: \(title.done)")
             }
             modelContext.insert(todayData) // SwiftDataに保存
-            do {
-                try modelContext.save()
-            }
-            catch {
-                
-            }
-            
+            try modelContext.save()
         } catch {
             print(error)
         }

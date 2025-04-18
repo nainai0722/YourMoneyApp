@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingView: View {
-    var settingList: [String] = ["タイトル","したく","スタンプ"]
+    var settingList: [String] = ["タイトル","したく","スタンプ","画像のお気に入り選択"]
     var body: some View {
         NavigationStack {
             List {
@@ -21,7 +21,10 @@ struct SettingView: View {
                             RoutineListView()
                         }
                         if setting == "スタンプ" {
-                            
+                            Text("構想を考え中です。アップデートをお待ちください")
+                        }
+                        if setting == "画像のお気に入り選択" {
+                            PinnedImageDataList()
                         }
                     }, label: {
                         Text(setting)

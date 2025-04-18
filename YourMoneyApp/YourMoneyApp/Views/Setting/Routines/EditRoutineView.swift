@@ -8,17 +8,13 @@
 import SwiftUI
 import SwiftData
 
-enum ImageType: String, CaseIterable {
-    case foodDink = "food-drink"
-    case life = "life"
-    case school = "school"
-    case snow = "snow"
-}
 
 @MainActor
 struct EditRoutineView: View {
     @Environment(\.presentationMode) var presentationMode:Binding<PresentationMode>
     @Environment(\.modelContext) private var modelContext
+    // ピン留めした画像だけ表示する
+    @Query(filter: #Predicate<ImageData> { $0.isPinned == true }) var imageDatas: [ImageData]
     @State var routine:RoutineTemplateItem?
     @State var editTitle: String = ""
     @State var editImage: String = ""
@@ -35,11 +31,9 @@ struct EditRoutineView: View {
                 print("選択中の画像")
             })
             Text("他の画像を選択する")
-            ScrollView {
-                GridView(imageArray:imageArray , onTap: { imageName in
-                    editImage = imageName
-                })
-            }
+            GridView(imageData:imageDatas.filter{ $0.isPinned == true }, onTap: { image in
+                editImage = image.fileName
+            })
             HStack {
                 if isEdit {
                     Button(action: {
@@ -64,27 +58,17 @@ struct EditRoutineView: View {
             }
         }
         .onAppear() {
-            imageArray = (1...70).map { "food-drink_image\($0)" }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                print("追加後：", imageArray)
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                print("追加後：", imageArray)
+//            }
             if let routine = routine {
                 editTitle = routine.name
                 editImage = routine.imageName
                 isEdit = true
             }
-//            listAssetCatalogImageNames()
         }
     }
     
-//    func listAssetCatalogImageNames() -> [String] {
-//        var result: [String] = []
-//        let assetCatalogPath = Bundle.main.resourcePath! + "/Assets.car"
-//        print("Assets.car の中身は直接読めない😢: \(assetCatalogPath)")
-//        return result
-//    }
-
-
     func delete(_ routine: RoutineTemplateItem) {
         routine.name = editTitle
         

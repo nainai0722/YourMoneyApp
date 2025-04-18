@@ -18,7 +18,8 @@ struct YourMoneyAppApp: App {
             Routine.self,
             RoutineTitle.self,
             RoutineTemplateItem.self,
-            RoutineTitleTemplate.self
+            RoutineTitleTemplate.self,
+            ImageData.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 //　マイグレーションエラー対策
@@ -34,6 +35,8 @@ struct YourMoneyAppApp: App {
 
     var body: some Scene {
         WindowGroup {
+//            EditRoutineView()
+//            PinnedImageDataList()
             RootView()
 //            ImageList()
             

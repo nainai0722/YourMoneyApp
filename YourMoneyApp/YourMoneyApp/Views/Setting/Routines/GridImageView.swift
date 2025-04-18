@@ -10,19 +10,18 @@ import SwiftUI
 
 struct GridView: View {
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
-    let imageArray: [String]
-    let onTap: (String) -> Void
+    let imageData: [ImageData]
+    let onTap: (ImageData) -> Void
     var body: some View {
-        ZStack {
-            ScrollView {
-                VStack(alignment:.leading) {
-                    LazyVGrid(columns: columns) {
-                        ForEach(imageArray, id: \.self){ image in
-                            IconView(imageName: image, size: 80, fontsize: 10, onTap: {
-                                print(image + "tap")
-                                onTap(image)
-                            })
-                        }
+        ScrollView {
+            VStack(alignment:.leading) {
+                LazyVGrid(columns: columns) {
+                    ForEach(imageData){ image in
+                        
+                        IconView(imageName: image.fileName, size: 80, fontsize: 10, onTap: {
+                            print(image.fileName + "tap")
+                            onTap(image)
+                        })
                     }
                 }
             }
@@ -31,22 +30,31 @@ struct GridView: View {
 }
 
 
-
 struct IconView: View {
     var imageName: String = "bath"
     var size: CGFloat = 150
     var fontsize: CGFloat = 20
     let onTap: () -> Void
     var body: some View {
-        VStack {
-            Button(action:{
-                onTap()
-            }) {
-                VStack(spacing: 0) {
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: size * 0.95, height: size * 0.95)
+        ZStack {
+            VStack {
+                Button(action:{
+                    onTap()
+                }) {
+                    VStack(spacing: 0) {
+                        if !imageName.isEmpty {
+                            Image(imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: size * 0.95, height: size * 0.95)
+                        } else {
+                            Image(systemName: "questionmark.square") // デフォルト画像
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: size * 0.95, height: size * 0.95)
+                        }
+                        
+                    }
                 }
             }
         }
@@ -61,6 +69,7 @@ struct IconView: View {
     }
 }
 
+
 struct ImageIconView:View {
     var body: some View {
         Image("bath")
@@ -70,6 +79,9 @@ struct ImageIconView:View {
     }
 }
 
-#Preview {
-//    GridImageView()
-}
+//#Preview {
+//    IconViewWithPinned(
+//        imageData: ImageData(fileName: "bath", category: .life, isPinned: false, timestamp: Date()),
+//        onTap: {}
+//    )
+//}
