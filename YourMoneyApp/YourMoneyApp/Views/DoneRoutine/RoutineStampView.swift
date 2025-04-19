@@ -12,18 +12,15 @@ struct RoutineStampView: View {
     @Binding var routines: [Routine]
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     var body: some View {
-        ZStack {
-            VStack {
-                ScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach($routines, id: \.self) { routine in
-                            StampCellView(routine: routine)
-                        }
+        VStack {
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach($routines, id: \.self) { routine in
+                        StampCellView(routine: routine)
                     }
                 }
-                Spacer()
-
             }
+//            Spacer()
         }
     }
 }
@@ -89,7 +86,7 @@ struct StampCellView: View {
             routine.done.toggle()
             selectedStamp = stampViews.randomElement()
         }){
-            ZStack {
+            VStack {
                 VStack {
                     Image(routine.imageName)
                         .resizable()
@@ -99,13 +96,16 @@ struct StampCellView: View {
                 }
                 .background()
                 .cornerRadius(8)
-                .shadow(radius: 10)
+                .shadow(radius: 3)
                 .overlay(content: {
                     VStack {
                         selectedStamp
                     }
                     .opacity(routine.done ? 1 : 0)
                 })
+                Text(routine.name)
+                    .lineLimit(1)
+                    .foregroundStyle(.black)
             }
             .padding()
         }

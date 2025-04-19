@@ -157,20 +157,6 @@ struct CustomCalendarViewView: View {
         return todayRoutineTitle
     }
     
-    func convertTemplateToRoutine(_ template: RoutineTitleTemplate) -> RoutineTitle {
-        let convertedRoutines = template.routines.map { item in
-            Routine(name: item.name, done: false, imageName: item.imageName)
-        }
-        return RoutineTitle(name: template.name, routines: convertedRoutines)
-    }
-
-    // DateComponents → Date へ変換する関数
-    private func dateComponentsToDate(_ dateComponents: DateComponents) -> Date? {
-        let calendar = Calendar.current
-        return calendar.date(from: dateComponents)
-    }
-
-    
     // 現在の月の日付を取得（正しい月曜始まり）
     private func getMonthDays(for date: Date, calendar: Calendar) -> [DateComponents] {
         guard let monthRange = calendar.range(of: .day, in: .month, for: date),

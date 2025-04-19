@@ -132,7 +132,9 @@ struct RootView: View {
                         todayData.routineTitles = await getRoutineTitlesFromTemplateAsync(templates)
                     }
                 } else {
+                    #if DEBUG
                     print("今日のデータがないので新規作成")
+                    #endif
                     await makeNewTodayData()
                 }
             
@@ -160,22 +162,23 @@ struct RootView: View {
         }
         
     }
-    func convertTemplateToRoutine(_ template: RoutineTitleTemplate) -> RoutineTitle {
-        let convertedRoutines = template.routines.map { item in
-            Routine(name: item.name, done: false, imageName: item.imageName)
-        }
-        return RoutineTitle(name: template.name, routines: convertedRoutines)
-    }
-    
-    func convertRoutineToTemplate(_ routineTitle: RoutineTitle) -> RoutineTitleTemplate {
-        let convertedTemplateRoutines = routineTitle.routines.map { item in
-            RoutineTemplateItem(name: item.name, done: item.done, imageName: item.imageName)
-        }
-        return RoutineTitleTemplate(name: routineTitle.name, routines: convertedTemplateRoutines)
-    }
+//    func convertTemplateToRoutine(_ template: RoutineTitleTemplate) -> RoutineTitle {
+//        let convertedRoutines = template.routines.map { item in
+//            Routine(name: item.name, done: false, imageName: item.imageName)
+//        }
+//        return RoutineTitle(name: template.name, routines: convertedRoutines)
+//    }
+//    
+//    func convertRoutineToTemplate(_ routineTitle: RoutineTitle) -> RoutineTitleTemplate {
+//        let convertedTemplateRoutines = routineTitle.routines.map { item in
+//            RoutineTemplateItem(name: item.name, done: item.done, imageName: item.imageName)
+//        }
+//        return RoutineTitleTemplate(name: routineTitle.name, routines: convertedTemplateRoutines)
+//    }
     
     /// Debug用
     func printTodayData(todayData: TodayData) {
+        #if DEBUG
         print("今日のデータ: \(todayData.timestamp.formatted())")
         print("今日のデータのroutineTitles一覧")
         for title in todayData.routineTitles {
@@ -184,6 +187,7 @@ struct RootView: View {
                 print("\(routine.name):done: \(routine.done)")
             }
         }
+        #endif
     }
 }
 

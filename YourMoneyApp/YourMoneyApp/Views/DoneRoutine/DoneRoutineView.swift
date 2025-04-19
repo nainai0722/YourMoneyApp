@@ -17,56 +17,55 @@ struct DoneRoutineView: View {
     @State var routineName: String = ""
     @State var routines :[Routine] = []
     var body : some View {
-        VStack {
-            NavigationSplitView {
-                ZStack {
-                    VStack {
-                        Text(routineName)
-                            .font(.title)
-                        Menu("したくをえらぶ") {
-                            ForEach(todayData.routineTitles,id:\.id) { routineTitle in
-                                Button(routineTitle.name, action: {
-                                    routines = routineTitle.routines
-                                    routineName = routineTitle.name
-                                })
-                            }
-                        }
-                        .menuStyle(ButtonMenuStyle())
-                        
-                        BubbleView(text:"できたらスタンプを押してね！" )
-                        
-                        RoutineStampView(routines: $routines)
-                        
-                        Spacer()
-                        
-                        if allDoneCheck() {
-                            NavigationLink {
-                                RoutineCalendarView()
-                            } label: {
-                                Text("カレンダーを見る")
-                                    .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
-                            }
-                        }
-                    }
-                    if allDoneCheck() {
-                        AllDone_StampView()
-                            .onAppear(){
-                                updateRoutinesDone()
-                            }
+        ZStack {
+            VStack {
+                Text(routineName)
+                    .font(.title)
+                Menu("したくをえらぶ") {
+                    ForEach(todayData.routineTitles,id:\.id) { routineTitle in
+                        Button(routineTitle.name, action: {
+                            routines = routineTitle.routines
+                            routineName = routineTitle.name
+                        })
                     }
                 }
-            } detail: {
-                Text("Select an money")
+                .menuStyle(ButtonMenuStyle())
+                
+                BubbleView(text:"できたらスタンプを押してね！" )
+                
+                RoutineStampView(routines: $routines)
+                
+                Spacer()
+                
+                if allDoneCheck() {
+                    NavigationLink {
+                        RoutineCalendarView()
+                    } label: {
+                        Text("カレンダーを見る")
+                            .modifier(CustomButtonLayoutWithSetColor(textColor: .white, backGroundColor: .red, fontType: .title))
+                    }
+                }
+            }
+            if allDoneCheck() {
+                AllDone_StampView()
+                    .onAppear(){
+                        updateRoutinesDone()
+                    }
             }
         }
         .onAppear {
             fetchTodayData()
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
         }
     }
     
     func updateRoutinesDone() {
+        #if DEBUG
         print("ルーティンの更新")
-        
+        #endif
         let fetchDescriptor = FetchDescriptor<TodayData>()
         do {
             let allDays = try modelContext.fetch(fetchDescriptor)

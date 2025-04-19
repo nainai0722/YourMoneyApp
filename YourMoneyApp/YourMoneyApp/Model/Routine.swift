@@ -17,6 +17,13 @@ final class Routine: Identifiable {
     @Relationship(inverse: \RoutineTitle.routines)
         var title: RoutineTitle?
     
+    init(id: UUID, name: String, done: Bool, imageName: String) {
+        self.id = id
+        self.name = name
+        self.done = done
+        self.imageName = imageName
+    }
+    
     init(name: String, done: Bool, imageName: String) {
         self.name = name
         self.done = done

@@ -14,8 +14,8 @@ final class RoutineTemplateItem: Identifiable {
     var name: String
     var done: Bool
     var imageName: String
-    @Relationship(inverse: \RoutineTitle.routines)
-        var title: RoutineTitle?
+    @Relationship(inverse: \RoutineTitleTemplate.routines)
+        var title: RoutineTitleTemplate?
     
     init(name: String, done: Bool, imageName: String) {
         self.name = name

@@ -7,6 +7,18 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseCore
+import FirebaseAnalytics
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    return true
+  }
+}
+
 
 @main
 struct YourMoneyAppApp: App {
@@ -39,8 +51,10 @@ struct YourMoneyAppApp: App {
 //            PinnedImageDataList()
             RootView()
                 .onAppear() {
+                    Analytics.setAnalyticsCollectionEnabled(true)
                     requestNotificationPermission()
-                    scheduleNotification(title: "おはよう！", body: "今日の予定を確認しよう☀️", hour: 23, minute: 10)
+                    scheduleNotification(title: "おはよう！", body: "今日の予定を確認しよう☀️", hour: 7, minute: 45)
+                    scheduleNotification(title: "おかえり！", body: "おかたづけしよう", hour: 18, minute: 45)
                     if let image = UIImage(named: "bath") {
                         print("画像変換できた？")
                         saveImageToAppGroup(image: image, fileName: "bath.png")

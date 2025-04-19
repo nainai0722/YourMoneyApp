@@ -9,11 +9,13 @@ import UserNotifications
 
 func requestNotificationPermission() {
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        #if DEBUG
         if granted {
             print("通知の許可がされました！")
         } else {
             print("通知の許可がされませんでした")
         }
+        #endif
     }
 }
 

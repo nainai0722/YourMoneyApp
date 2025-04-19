@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-
+import FirebaseAnalytics
 
 @MainActor
 struct EditRoutineView: View {
@@ -80,7 +80,14 @@ struct EditRoutineView: View {
             
             if let routineTitle = routineTitle {
                 routineTitle.routines.removeAll(where: { $0.id == routine.id } )
+                Analytics.logEvent("deleteRoutine", parameters: [
+                    "routineTitle": routineTitle.name,
+                    "routineName": routine.name,
+                    "imageName": routine.imageName,
+                ])
+                fetchTodayData(routine,isDelete: true)
             }
+            
         } catch {
             print("❌ データの取得または更新に失敗: \(error.localizedDescription)")
         }
@@ -100,6 +107,12 @@ struct EditRoutineView: View {
                 updateRoutine.name = editTitle
                 updateRoutine.imageName = editImage
                 try modelContext.save()
+                Analytics.logEvent("updateRoutine", parameters: [
+                    "routineTitle": routineTitle.name,
+                    "routineName": updateRoutine.name,
+                    "imageName": updateRoutine.imageName,
+                ])
+                fetchTodayData(routine,isDelete: false)
             }
         } catch {
             print("❌ データの取得または更新に失敗: \(error.localizedDescription)")
@@ -117,18 +130,59 @@ struct EditRoutineView: View {
         do {
             let routineTitles = try modelContext.fetch(fetchDescriptor)
             let routineTitle = routineTitles.first(where: { $0.id == routineTitleId })
-            print("routineTitle: \(routineTitle?.name)")
             if let routineTitle = routineTitle {
                 let newRoutine = RoutineTemplateItem(name: editTitle, done: false, imageName: editImage)
                 routineTitle.routines.append(newRoutine)
                 modelContext.insert(newRoutine)
                 print("保存処理完了")
+                Analytics.logEvent("addRoutine", parameters: [
+                    "routineTitle": routineTitle.name,
+                    "routineName": newRoutine.name,
+                    "imageName": newRoutine.imageName,
+                ])
+                fetchTodayData(newRoutine,isDelete: false)
             }
             try modelContext.save()
         } catch {
             print("❌ データの追加に失敗: \(error.localizedDescription)")
         }
     }
+    
+    func fetchTodayData(_ templateRoutine: RoutineTemplateItem, isDelete: Bool) {
+        let fetchDescriptor = FetchDescriptor<TodayData>()
+        let fetchDescriptor2 = FetchDescriptor<RoutineTitleTemplate>()
+        do {
+            let allDays = try modelContext.fetch(fetchDescriptor)
+            let titleTemplates = try modelContext.fetch(fetchDescriptor2)
+            let today = Calendar.current.startOfDay(for: Date()) // 今日の0:00のタイムスタンプ
+            
+            if let todayData = allDays.first(where: { Calendar.current.isDate($0.timestamp, inSameDayAs: today) }),
+               let titleTemplate = titleTemplates.first(where: {$0.id == routineTitleId})
+            {
+                // 今日のデータを取得したら、タイトルを限定し
+                if let routineTitle = todayData.routineTitles.first(where: { $0.name == titleTemplate.name }) {
+                    if let existRoutine = routineTitle.routines.first(where: { $0.id == templateRoutine.id }) {
+                        if isDelete {
+                            routineTitle.routines.removeAll(where: { $0.id == existRoutine.id } )
+                        } else {
+                            // すでに存在しているルーティンであれば内容を差し替える
+                            existRoutine.name = templateRoutine.name
+                            existRoutine.imageName = templateRoutine.imageName
+                        }
+                    } else {
+                        let newRoutine = Routine(name: templateRoutine.name, done: false, imageName: templateRoutine.imageName)
+                        routineTitle.routines.append(newRoutine)
+                        modelContext.insert(newRoutine)
+                    }
+                    try modelContext.save()
+                }
+            }
+        } catch {
+            print(error)
+        }
+    }
+    
+    
 }
 //
 //#Preview {

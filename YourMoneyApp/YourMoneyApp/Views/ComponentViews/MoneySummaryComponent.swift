@@ -36,7 +36,7 @@ struct MoneySummaryComponent: View {
                     Button(action:{
                         isShowingGoalSetting = true
                         isShowingMoneyDetail = false
-                        print("isShowingGoalSetting: \(isShowingGoalSetting)")
+//                        print("isShowingGoalSetting: \(isShowingGoalSetting)")
                     }){
                         
                         BubbleView(text: goalAchieved())
